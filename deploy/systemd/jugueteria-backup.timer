@@ -1,0 +1,12 @@
+[Unit]
+Description=Mi Juguetería · timer de respaldo diario (03:15 America/Bogota)
+Documentation=file:///srv/mi-jugueteria-web/deploy/README.md
+
+[Timer]
+OnCalendar=*-*-* 03:15:00 America/Bogota
+Persistent=true
+RandomizedDelaySec=120
+Unit=jugueteria-backup.service
+
+[Install]
+WantedBy=timers.target

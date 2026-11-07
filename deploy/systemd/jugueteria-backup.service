@@ -1,0 +1,14 @@
+[Unit]
+Description=Mi Juguetería · respaldo diario de PostgreSQL
+Documentation=file:///srv/mi-jugueteria-web/deploy/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=backup
+Group=backup
+EnvironmentFile=/etc/mi-jugueteria-backup.env
+ExecStart=/srv/mi-jugueteria-web/deploy/scripts/backup-db.sh
+Nice=10
+IOSchedulingClass=idle

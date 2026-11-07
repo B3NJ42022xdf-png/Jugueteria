@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+/*
+ * Base global pensada para móviles con notch y para evitar desbordes
+ * horizontales cuando el usuario cambia la resolución o gira el dispositivo.
+ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-x: clip;
+    /* Respeta el área segura del notch en iPhone/Android. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Los controles táctiles nunca deben quedar por debajo del mínimo
+     recomendado por WCAG 2.5.8 (24 px) ni del cómodo de 44 px. */
+  button,
+  [role='button'],
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  /* Evita que un texto largo (correos, URLs) rompa el layout. */
+  p,
+  li,
+  label,
+  span {
+    overflow-wrap: anywhere;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

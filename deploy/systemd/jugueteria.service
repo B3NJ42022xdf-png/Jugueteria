@@ -1,0 +1,32 @@
+[Unit]
+Description=Mi Juguetería · servidor web
+Documentation=file:///srv/mi-jugueteria-web/deploy/README.md
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/mi-jugueteria-web
+EnvironmentFile=-/etc/mi-jugueteria.env
+Environment=NODE_ENV=production
+Environment=HOST=0.0.0.0
+Environment=PORT=3000
+ExecStart=/usr/bin/node server/index.mjs
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mi-jugueteria-web
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/mi-jugueteria-web
+
+[Install]
+WantedBy=multi-user.target
