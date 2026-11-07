@@ -1,5 +1,5 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import ProductCard from '../components/ProductCard.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
 import { filterAndSortProducts } from '../lib/catalog.js'
 import { AGE_GROUPS, PRICE_MIN, PRICE_STEP } from '../data/products.js'
@@ -14,8 +14,6 @@ const priceFormatter = new Intl.NumberFormat('es-CO', {
   currency: 'COP',
   maximumFractionDigits: 0,
 })
-
-const numberFormatter = new Intl.NumberFormat('es-CO')
 
 function formatPrice(value) {
   return priceFormatter.format(value)
@@ -61,19 +59,6 @@ function XIcon({ className = 'h-4 w-4' }) {
   )
 }
 
-function StarIcon({ filled }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={`h-4 w-4 ${filled ? 'text-amber-400' : 'text-slate-200'}`}
-      aria-hidden="true"
-    >
-      <path d="m12 2.5 2.9 5.9 6.5.95-4.7 4.58 1.1 6.47L12 17.36 6.2 20.4l1.1-6.47L2.6 9.35l6.5-.95L12 2.5Z" />
-    </svg>
-  )
-}
-
 /* ------------------------------------------------------------------ */
 /* Piezas de la interfaz                                               */
 /* ------------------------------------------------------------------ */
@@ -84,82 +69,6 @@ function FilterSection({ title, children }) {
       <h3 className="mb-3 text-sm font-black text-slate-900">{title}</h3>
       {children}
     </div>
-  )
-}
-
-function Stars({ rating, reviews }) {
-  const roundedRating = Math.round(rating)
-
-  return (
-    <div
-      className="mt-2 flex items-center gap-1.5"
-      role="img"
-      aria-label={`${rating.toFixed(1)} de 5 estrellas, ${reviews} reseñas`}
-    >
-      <div className="flex gap-0.5" aria-hidden="true">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <StarIcon key={star} filled={star <= roundedRating} />
-        ))}
-      </div>
-      <span className="text-xs font-bold text-slate-700" aria-hidden="true">
-        {rating.toFixed(1)}
-      </span>
-      <span className="text-xs text-slate-400" aria-hidden="true">
-        ({numberFormatter.format(reviews)})
-      </span>
-    </div>
-  )
-}
-
-function ProductCard({ product, priority = false }) {
-  return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 focus-within:ring-4 focus-within:ring-violet-200 hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl hover:shadow-violet-900/10">
-      <Link
-        to={`/producto/${product.id}`}
-        aria-label={`Ver detalle de ${product.name}`}
-        className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none"
-      />
-
-      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-        <img
-          src={product.image}
-          alt={`${product.name} de ${product.brand}`}
-          width="400"
-          height="300"
-          loading={priority ? 'eager' : 'lazy'}
-          fetchPriority={priority ? 'high' : 'auto'}
-          decoding="async"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-        />
-
-        {product.badge && (
-          <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-black uppercase tracking-wide text-violet-700 shadow-sm backdrop-blur">
-            {product.badge}
-          </span>
-        )}
-
-        <span className="absolute bottom-3 right-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-slate-700 shadow-sm backdrop-blur">
-          {product.category}
-        </span>
-      </div>
-
-      <div className="flex flex-1 flex-col p-4">
-        <div className="flex items-center justify-between gap-2 text-xs">
-          <span className="font-bold uppercase tracking-wide text-violet-600">{product.brand}</span>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-500">
-            {product.age} años
-          </span>
-        </div>
-
-        <h3 className="mt-2 text-base font-black leading-snug text-slate-900">{product.name}</h3>
-
-        <Stars rating={product.rating} reviews={product.reviews} />
-
-        <p className="mt-auto pt-4 text-xl font-black tracking-tight text-slate-900">
-          {formatPrice(product.price)}
-        </p>
-      </div>
-    </article>
   )
 }
 
@@ -476,7 +385,7 @@ function CatalogoContent({ catalog }) {
               </div>
 
               {filteredProducts.length > 0 ? (
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {filteredProducts.map((product, index) => (
                     <ProductCard
                       key={product.id}
@@ -486,23 +395,32 @@ function CatalogoContent({ catalog }) {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-                  <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-violet-100 text-violet-600">
-                    <SearchIcon className="h-8 w-8" />
+                <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+                  <div
+                    className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-violet-100 via-fuchsia-50 to-amber-100 text-5xl"
+                    aria-hidden="true"
+                  >
+                    🧸
+                  </div>
+                  <div
+                    className="mx-auto -mt-3 grid h-11 w-11 place-items-center rounded-full bg-white text-violet-600 shadow-md ring-1 ring-violet-100"
+                    aria-hidden="true"
+                  >
+                    <SearchIcon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-5 text-xl font-black tracking-tight text-slate-900">
-                    No se encontraron juguetes
+                    No encontramos ese juguete
                   </h3>
                   <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
-                    Prueba con otra búsqueda o ajusta los filtros de categoría, edad, marca y
-                    precio.
+                    Parece que la búsqueda no coincide con nada de nuestro catálogo. Prueba con
+                    otra palabra o ajusta los filtros de categoría, edad, marca y precio.
                   </p>
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="mt-6 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-violet-600/20 transition hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200"
+                    className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-violet-600/20 transition hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200"
                   >
-                    Limpiar búsqueda y filtros
+                    Limpiar filtros
                   </button>
                 </div>
               )}
@@ -531,7 +449,7 @@ function CatalogLoading() {
               <p className="text-sm font-semibold text-slate-500">
                 Cargando catálogo…
               </p>
-              <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div
                     key={index}

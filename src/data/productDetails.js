@@ -18,11 +18,11 @@ export const PRODUCT_STOCK = {
   'lego-castillo-medieval': 12,
   'lego-bloques-creativos': 8,
   'muneca-ariana-vestidos': 3,
-  'muñecos-safari': 6,
+  'figuras-aventura': 6,
   'oso-peluche-gigante': 9,
-  'conejo-peluche-rosado': 5,
+  'peluche-suave-dormir': 5,
   'auto-carreras-turbo': 24,
-  'camion-bomberos': 4,
+  'tren-carga-madera': 4,
   'rompecabezas-sistema-solar': 7,
   'kit-ciencias-volcan': 2,
   'monopolio-junior': 15,
@@ -40,16 +40,16 @@ const DESCRIPTIONS = {
     'Una caja llena de colores y formas para dar rienda suelta a la imaginación. Ideal para los primeros proyectos de construcción y para inventar historias sin límites.',
   'muneca-ariana-vestidos':
     'Muñeca articulada con vestidos intercambiables y accesorios de moda. Su cabello se puede peinar y sus manos están diseñadas para sujetar cada accesorio.',
-  'muñecos-safari':
-    'Explora la sabana con figuras de animales, un vehículo de expedición y un explorador. Las piezas tienen el tamaño justo para manos pequeñas.',
+  'figuras-aventura':
+    'Set de figuras articuladas con accesorios de aventura, mochila y vehículo de exploración. Las piezas tienen el tamaño justo para manos pequeñas.',
   'oso-peluche-gigante':
     'Peluche extra suave y abrazable, con relleno de fibra siliconada y costuras reforzadas. Un compañero ideal para dormir, jugar y acompañar cada aventura.',
-  'conejo-peluche-rosado':
-    'Conejo de peluche de tacto suave, orejas largas y detalles bordados. Su tamaño compacto lo hace perfecto para llevar de paseo.',
+  'peluche-suave-dormir':
+    'Peluche de tacto extra suave con mantita incorporada y detalles bordados. Su tamaño compacto lo hace perfecto para dormir y llevar de paseo.',
   'auto-carreras-turbo':
     'Auto de carreras con diseño aerodinámico, ruedas de alta velocidad y chasis resistente a impactos. Compatible con pistas y accesorios de la misma línea.',
-  'camion-bomberos':
-    'Camión de bomberos con luces, sirena y escalera extensible. Incluye figuras y accesorios para recrear rescates llenos de acción.',
+  'tren-carga-madera':
+    'Tren de carga de madera natural con locomotora, vagones y vías encajables. Estimula la motricidad fina y la imaginación mientras se construyen recorridos.',
   'rompecabezas-sistema-solar':
     'Rompecabezas de 500 piezas con una ilustración detallada del sistema solar. Fomenta la concentración y el aprendizaje mientras se arma.',
   'kit-ciencias-volcan':
@@ -63,7 +63,7 @@ const DESCRIPTIONS = {
   'cohete-de-agua':
     'Cohete recargable que despega con agua y aire. No requiere baterías y es ideal para jugar al aire libre durante horas.',
   'sonajero-arcoiris':
-    'Sonajero ergonómico con sonidos suaves y colores contrastantes. Estimula la audición y la coordinación del bebé desde los primeros meses.',
+    'Torre apilable de anillos de colores con base oscilante. Estimula la coordinación, la motricidad fina y el reconocimiento de colores desde los primeros meses.',
   'alfombra-actividades':
     'Alfombra de actividades con arco, juguetes colgantes y texturas. Acompaña el juego boca abajo y la exploración del bebé.',
 }
@@ -81,25 +81,25 @@ const GALLERY_EXTRAS = {
     createToyImage('👗', '#a21caf', '#f472b6'),
     createToyImage('🎀', '#ec4899', '#fb7185'),
   ],
-  'muñecos-safari': [
-    createToyImage('🦒', '#ca8a04', '#65a30d'),
+  'figuras-aventura': [
     createToyImage('🧭', '#166534', '#84cc16'),
+    createToyImage('🗺️', '#b45309', '#fbbf24'),
   ],
   'oso-peluche-gigante': [
     createToyImage('🤗', '#b45309', '#fbbf24'),
     createToyImage('🎁', '#f59e0b', '#ef4444'),
   ],
-  'conejo-peluche-rosado': [
-    createToyImage('🌸', '#f9a8d4', '#c084fc'),
-    createToyImage('🥕', '#fb7185', '#f59e0b'),
+  'peluche-suave-dormir': [
+    createToyImage('🌙', '#f9a8d4', '#c084fc'),
+    createToyImage('🧸', '#fb7185', '#f59e0b'),
   ],
   'auto-carreras-turbo': [
     createToyImage('🏁', '#111827', '#ef4444'),
     createToyImage('🔧', '#374151', '#f97316'),
   ],
-  'camion-bomberos': [
-    createToyImage('🚨', '#dc2626', '#f59e0b'),
-    createToyImage('🧑‍🚒', '#b91c1c', '#0ea5e9'),
+  'tren-carga-madera': [
+    createToyImage('🚂', '#92400e', '#f59e0b'),
+    createToyImage('🛤️', '#065f46', '#84cc16'),
   ],
   'rompecabezas-sistema-solar': [
     createToyImage('🌞', '#f59e0b', '#6366f1'),
@@ -215,7 +215,7 @@ const CATEGORY_INFO = {
       'Verifica que las ruedas estén bien sujetas antes de jugar.',
     ],
   },
-  Didácticos: {
+  Científicos: {
     highlights: [
       'Aprendizaje basado en el juego',
       'Materiales duraderos',
@@ -235,7 +235,7 @@ const CATEGORY_INFO = {
       'Sigue las instrucciones y usa únicamente los elementos incluidos.',
     ],
   },
-  'Juegos de mesa': {
+  'Juegos de Mesa': {
     highlights: [
       'Para toda la familia',
       'Reglas fáciles de aprender',
@@ -255,7 +255,7 @@ const CATEGORY_INFO = {
       'No ingieras las fichas.',
     ],
   },
-  'Aire libre': {
+  'Aire Libre': {
     highlights: [
       'Ideal para jugar al aire libre',
       'Materiales resistentes al uso',
@@ -328,14 +328,14 @@ export function getProductDetail(product) {
     specs: [
       { label: 'Marca', value: product.brand },
       { label: 'Categoría', value: product.category },
-      { label: 'Edad recomendada', value: `${product.age.replace('-', ' a ')} años` },
+      { label: 'Edad recomendada', value: `${(product.ageRange ?? product.age).replace('-', ' a ')} años` },
       { label: 'Referencia', value: product.id.toUpperCase() },
       ...info.specs,
     ],
     materials: info.materials,
     safety: info.safety,
     stock: product.stock ?? PRODUCT_STOCK[product.id] ?? 0,
-    gallery: [product.image, ...galleryExtras],
+    gallery: [product.imageUrl ?? product.image, ...galleryExtras],
   }
 }
 

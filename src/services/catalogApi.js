@@ -17,7 +17,8 @@ import { filterAndSortProducts } from '../lib/catalog.js'
 import { getCatalogMeta, listProducts } from './productService.js'
 import { recordMetric } from './performanceService.js'
 
-const CACHE_KEY = 'jugueteria.catalogCache.v1'
+const CACHE_KEY = 'jugueteria.catalogCache.v2'
+const CACHE_VERSION = 2
 const CACHE_TTL_MS = 10 * 60 * 1000
 
 let memoryCache = null
@@ -35,7 +36,7 @@ function readSessionCache() {
 
     if (
       !parsed ||
-      parsed.version !== 1 ||
+      parsed.version !== CACHE_VERSION ||
       !Array.isArray(parsed.products) ||
       !parsed.meta ||
       Date.now() - parsed.savedAt > CACHE_TTL_MS
@@ -53,7 +54,7 @@ function writeSessionCache(data) {
   try {
     sessionStorage.setItem(
       CACHE_KEY,
-      JSON.stringify({ version: 1, savedAt: Date.now(), ...data }),
+      JSON.stringify({ version: CACHE_VERSION, savedAt: Date.now(), ...data }),
     )
   } catch {
     // La caché de sesión es opcional: si está llena, seguimos con memoria.

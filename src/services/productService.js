@@ -100,6 +100,10 @@ function mergeProduct(product, changes, stockMap) {
 
   // Saneamiento en lectura: neutraliza datos heredados o manipulados desde
   // localStorage antes de que lleguen a React.
+  const image = sanitizeUrl(stored.imageUrl ?? stored.image, {
+    allowDataImage: true,
+  }) || createToyImage('🧸', '#7c3aed', '#db2777')
+
   const merged = {
     ...stored,
     name: sanitizePlainText(stored.name, { max: 80, fallback: 'Juguete' }),
@@ -109,9 +113,11 @@ function mergeProduct(product, changes, stockMap) {
       max: 400,
       allowNewlines: true,
     }),
-    image:
-      sanitizeUrl(stored.image, { allowDataImage: true }) ||
-      createToyImage('🧸', '#7c3aed', '#db2777'),
+    ageRange: AGES.includes(stored.ageRange) ? stored.ageRange : sanitizeAge(stored.age),
+    imageUrl: image,
+    // Alias que consumen el detalle, el carrito y el panel de administración.
+    image,
+    age: AGES.includes(stored.ageRange) ? stored.ageRange : sanitizeAge(stored.age),
   }
 
   // El promedio del catálogo combina la calificación histórica con las
@@ -120,7 +126,7 @@ function mergeProduct(product, changes, stockMap) {
   const stats = getProductRatingStats(
     merged.id,
     merged.rating,
-    merged.reviews,
+    merged.reviewsCount ?? merged.reviews,
   )
 
   return {
@@ -128,9 +134,10 @@ function mergeProduct(product, changes, stockMap) {
     active: merged.active !== false,
     stock: resolveStock(product.id, stockMap),
     rating: stats.rating,
+    reviewsCount: stats.reviews,
     reviews: stats.reviews,
     baseRating: Number(merged.rating) || 0,
-    baseReviews: Number(merged.reviews) || 0,
+    baseReviews: Number(merged.reviewsCount ?? merged.reviews) || 0,
     realReviewCount: stats.realCount,
   }
 }
@@ -280,18 +287,27 @@ function uniqueId(name) {
 /* ------------------------------------------------------------------ */
 
 function buildFields(input, current = {}) {
+  const ageRange = sanitizeAge(
+    input.ageRange ?? input.age ?? current.ageRange ?? current.age,
+  )
+  const fallbackImage = current.imageUrl ?? current.image ?? createToyImage('🧸', '#7c3aed', '#db2777')
+  const imageUrl = sanitizeImage(
+    input.imageUrl ?? input.image ?? current.imageUrl ?? current.image,
+    fallbackImage,
+  )
+
   return {
     name: sanitizeText(input.name ?? current.name, 'el nombre del juguete'),
     brand: sanitizeText(input.brand ?? current.brand, 'la marca', { max: 40 }),
     category: sanitizeText(input.category ?? current.category, 'la categoría', {
       max: 40,
     }),
-    age: sanitizeAge(input.age ?? current.age),
+    ageRange,
+    // Alias de compatibilidad con el panel de administración y el detalle.
+    age: ageRange,
     price: sanitizePrice(input.price ?? current.price),
-    image: sanitizeImage(
-      input.image ?? current.image,
-      current.image ?? createToyImage('🧸', '#7c3aed', '#db2777'),
-    ),
+    imageUrl,
+    image: imageUrl,
     description: sanitizeText(
       input.description ?? current.description,
       'la descripción',
@@ -310,6 +326,7 @@ export function createProduct(input) {
     id,
     ...fields,
     rating: 0,
+    reviewsCount: 0,
     reviews: 0,
     popularity: 50,
     badge: 'Nuevo',

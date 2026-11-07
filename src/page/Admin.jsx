@@ -328,7 +328,7 @@ function ProductForm({ form, categories, brands, onChange, onClose, onSubmit, er
                       values: { ...values, category: event.target.value },
                     })
                   }
-                  placeholder="Ej. Didácticos"
+                  placeholder="Ej. Científicos"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
                 />
                 <datalist id="admin-categories">
