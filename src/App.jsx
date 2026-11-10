@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import Snowfall from './components/Snowfall.jsx'
 import Catalogo from './page/Catalogo'
 
 /**
@@ -44,26 +45,38 @@ function RouteMeta() {
 function RouteFallback() {
   return (
     <div
-      className="grid min-h-screen place-items-center bg-slate-50 text-slate-900"
+      className="toy-dots grid min-h-screen place-items-center bg-toy-cream text-toy-ink"
       aria-busy="true"
       aria-live="polite"
     >
       <div className="text-center">
-        <span className="grid h-14 w-14 mx-auto place-items-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 text-2xl shadow-lg shadow-fuchsia-500/25">
-          🧸
+        <span className="mx-auto grid h-16 w-16 animate-bounce-in place-items-center rounded-3xl bg-gradient-to-br from-red-600 via-red-500 to-amber-400 text-3xl shadow-lg shadow-red-900/30">
+          🎄
         </span>
-        <p className="mt-3 text-sm font-bold text-slate-600">
-          Cargando página…
+        <p className="mt-4 font-display text-base font-bold text-slate-600">
+          Preparando la Navidad…
         </p>
+        <span className="mt-2 flex justify-center gap-1.5" aria-hidden="true">
+          {[0, 1, 2].map((dot) => (
+            <span
+              key={dot}
+              className="h-2 w-2 rounded-full bg-red-500"
+              style={{
+                animation: `toyDot 1s ease-in-out ${dot * 0.15}s infinite`,
+              }}
+            />
+          ))}
+        </span>
       </div>
     </div>
   )
 }
 
-function App() {
+function AnimatedRoutes() {
+  const { pathname } = useLocation()
+
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <RouteMeta />
+    <div key={pathname} className="animate-route-fade">
       <Routes>
         <Route path="/" element={<Navigate to="/catalogo" replace />} />
         <Route path="/catalogo" element={<Catalogo />} />
@@ -81,6 +94,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<Navigate to="/catalogo" replace />} />
       </Routes>
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <RouteMeta />
+      <Snowfall />
+      <AnimatedRoutes />
     </Suspense>
   )
 }

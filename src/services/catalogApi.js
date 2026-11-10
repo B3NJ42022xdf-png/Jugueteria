@@ -17,8 +17,8 @@ import { filterAndSortProducts } from '../lib/catalog.js'
 import { getCatalogMeta, listProducts } from './productService.js'
 import { recordMetric } from './performanceService.js'
 
-const CACHE_KEY = 'jugueteria.catalogCache.v2'
-const CACHE_VERSION = 2
+const CACHE_KEY = 'jugueteria.catalogCache.v3'
+const CACHE_VERSION = 3
 const CACHE_TTL_MS = 10 * 60 * 1000
 
 let memoryCache = null

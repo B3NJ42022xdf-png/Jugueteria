@@ -31,6 +31,28 @@ export const PRODUCT_STOCK = {
   'cohete-de-agua': 10,
   'sonajero-arcoiris': 18,
   'alfombra-actividades': 3,
+
+  /* Colección de Navidad */
+  'arbol-navideno-interactivo': 14,
+  'santa-peluche-gigante': 7,
+  'set-elfos-ayudantes': 9,
+  'trineo-madera-deslizador': 4,
+  'reno-luminoso-cantante': 11,
+  'caja-regalos-sorpresa': 20,
+  'calcetines-navidenos-pack': 16,
+  'corona-adviento-madera': 6,
+  'galletas-jengibre-juego': 13,
+  'casa-jengibre-armar': 8,
+  'muneco-nieve-peluche': 15,
+  'estrella-navidena-luz': 5,
+  'tren-navideno-electrico': 3,
+  'duende-travieso-interactivo': 10,
+  'bolsa-regalos-magica': 2,
+  'campanas-navidenas-musicales': 12,
+  'patineta-nieve-nordica': 5,
+  'kit-cartas-papa-noel': 25,
+  'pesebre-madera-artesanal': 4,
+  'luces-led-cascada': 9,
 }
 
 const DESCRIPTIONS = {
@@ -66,6 +88,48 @@ const DESCRIPTIONS = {
     'Torre apilable de anillos de colores con base oscilante. Estimula la coordinación, la motricidad fina y el reconocimiento de colores desde los primeros meses.',
   'alfombra-actividades':
     'Alfombra de actividades con arco, juguetes colgantes y texturas. Acompaña el juego boca abajo y la exploración del bebé.',
+
+  /* Navidad */
+  'arbol-navideno-interactivo':
+    'Árbol navideño de juguete con luces LED cálidas, adornos intercambiables y una estrella que brilla. Se arma y desarma sin herramientas, ideal para decorar la habitación y jugar a preparar la Navidad.',
+  'santa-peluche-gigante':
+    'Papá Noel de peluche extra suave, con traje de terciopelo, barba de felpa y gorro con pompón. Su tamaño gigante lo convierte en el abrazo favorito de diciembre.',
+  'set-elfos-ayudantes':
+    'Dos elfos articulados con ropa de taller, martillo, lista de regalos y bolsitas de juguetes. Perfectos para inventar historias en el taller de Santa.',
+  'trineo-madera-deslizador':
+    'Trineo de madera con patines metálicos y cuerda de arrastre. Diseñado para deslizarse sobre nieve o césped y resistir el uso de toda la temporada.',
+  'reno-luminoso-cantante':
+    'Reno de peluche que canta villancicos, mueve la cabeza y enciende la nariz. Un compañero musical para las noches de diciembre.',
+  'caja-regalos-sorpresa':
+    'Caja de regalo con lazo dorado y juguetes sorpresa en su interior. Incluye piezas para armar, stickers y una tarjeta para escribir un deseo navideño.',
+  'calcetines-navidenos-pack':
+    'Pack de tres calcetines navideños de tela suave, con bordados de renos, copos y galletas. Ideales para colgar en la chimenea o llenar de pequeños regalos.',
+  'corona-adviento-madera':
+    'Corona de adviento de madera con cuatro velas LED y detalles verdes. Acompaña la cuenta regresiva de las cuatro semanas previas a Navidad.',
+  'galletas-jengibre-juego':
+    'Set de galletas de jengibre de juguete con decoraciones intercambiables. Los niños pueden decorar, contar y jugar a la panadería navideña.',
+  'casa-jengibre-armar':
+    'Kit para armar una casa de jengibre con piezas encajables, decoraciones y figuras. Una manualidad navideña para compartir en familia.',
+  'muneco-nieve-peluche':
+    'Muñeco de nieve de peluche con bufanda, zanahoria de fieltro y botones bordados. Su tacto suave y su tamaño abrazable lo hacen ideal para los más pequeños.',
+  'estrella-navidena-luz':
+    'Estrella luminosa con luz LED cálida y base para colgar o apoyar. Corona el árbol o ilumina la ventana durante toda la Navidad.',
+  'tren-navideno-electrico':
+    'Tren eléctrico con locomotora, vagones cargados de regalos y vías circulares. Enciende sus luces y recorre el árbol mientras suena un villancico.',
+  'duende-travieso-interactivo':
+    'Duende articulado que cambia de posición y esconde sorpresas. Un compañero travieso para las mañanas de diciembre.',
+  'bolsa-regalos-magica':
+    'Bolsa de tela con estampado navideño y cordón dorado. Perfecta para guardar y repartir regalos, o para jugar a ser Papá Noel.',
+  'campanas-navidenas-musicales':
+    'Set de campanas con mangos de colores que suenan al agitarlas. Ideal para cantar villancicos y acompañar la música de Navidad.',
+  'patineta-nieve-nordica':
+    'Patineta de nieve con base deslizante y agarres ergonómicos. Diseñada para deslizarse sobre nieve compacta con total seguridad.',
+  'kit-cartas-papa-noel':
+    'Kit con papel de carta, sobres, stickers y una pluma para escribirle a Papá Noel. Incluye una plantilla de deseos y un sobre especial para el Polo Norte.',
+  'pesebre-madera-artesanal':
+    'Pesebre de madera con figuras talladas y pintadas a mano. Un detalle tradicional para armar en familia cada diciembre.',
+  'luces-led-cascada':
+    'Cascada de luces LED con ocho modos de iluminación y temporizador. Decora paredes, ventanas y árboles con un brillo cálido y seguro.',
 }
 
 const GALLERY_EXTRAS = {
@@ -132,6 +196,88 @@ const GALLERY_EXTRAS = {
   'alfombra-actividades': [
     createToyImage('🎈', '#22c55e', '#facc15'),
     createToyImage('🧩', '#fde047', '#38bdf8'),
+  ],
+
+  /* Navidad */
+  'arbol-navideno-interactivo': [
+    createToyImage('🎄', '#166534', '#4ade80'),
+    createToyImage('🌟', '#b45309', '#fde047'),
+  ],
+  'santa-peluche-gigante': [
+    createToyImage('🎅', '#7f1d1d', '#fca5a5'),
+    createToyImage('🎁', '#b91c1c', '#fbbf24'),
+  ],
+  'set-elfos-ayudantes': [
+    createToyImage('🧝', '#14532d', '#86efac'),
+    createToyImage('🔨', '#166534', '#facc15'),
+  ],
+  'trineo-madera-deslizador': [
+    createToyImage('🛷', '#1e3a8a', '#bfdbfe'),
+    createToyImage('❄️', '#0c4a6e', '#e0f2fe'),
+  ],
+  'reno-luminoso-cantante': [
+    createToyImage('🦌', '#92400e', '#fde047'),
+    createToyImage('🎵', '#b91c1c', '#fca5a5'),
+  ],
+  'caja-regalos-sorpresa': [
+    createToyImage('🎁', '#be123c', '#fda4af'),
+    createToyImage('🎀', '#b91c1c', '#fde047'),
+  ],
+  'calcetines-navidenos-pack': [
+    createToyImage('🧦', '#991b1b', '#fecaca'),
+    createToyImage('🔥', '#7f1d1d', '#fbbf24'),
+  ],
+  'corona-adviento-madera': [
+    createToyImage('🕯️', '#14532d', '#facc15'),
+    createToyImage('🌿', '#166534', '#bef264'),
+  ],
+  'galletas-jengibre-juego': [
+    createToyImage('🍪', '#92400e', '#fde68a'),
+    createToyImage('🥛', '#1e3a8a', '#e0f2fe'),
+  ],
+  'casa-jengibre-armar': [
+    createToyImage('🏠', '#b45309', '#fde68a'),
+    createToyImage('🍬', '#be123c', '#fda4af'),
+  ],
+  'muneco-nieve-peluche': [
+    createToyImage('⛄', '#0284c7', '#e0f2fe'),
+    createToyImage('🧣', '#b91c1c', '#fecaca'),
+  ],
+  'estrella-navidena-luz': [
+    createToyImage('⭐', '#b45309', '#fde047'),
+    createToyImage('✨', '#7c2d12', '#fef3c7'),
+  ],
+  'tren-navideno-electrico': [
+    createToyImage('🚂', '#14532d', '#f59e0b'),
+    createToyImage('🛤️', '#78350f', '#d97706'),
+  ],
+  'duende-travieso-interactivo': [
+    createToyImage('🧝‍♂️', '#991b1b', '#4ade80'),
+    createToyImage('🎁', '#166534', '#facc15'),
+  ],
+  'bolsa-regalos-magica': [
+    createToyImage('🛍️', '#7f1d1d', '#f59e0b'),
+    createToyImage('🎁', '#b91c1c', '#fde047'),
+  ],
+  'campanas-navidenas-musicales': [
+    createToyImage('🔔', '#b45309', '#fde047'),
+    createToyImage('🎶', '#14532d', '#facc15'),
+  ],
+  'patineta-nieve-nordica': [
+    createToyImage('🛹', '#0f766e', '#99f6e4'),
+    createToyImage('❄️', '#0e7490', '#e0f2fe'),
+  ],
+  'kit-cartas-papa-noel': [
+    createToyImage('✉️', '#b91c1c', '#fef3c7'),
+    createToyImage('✍️', '#7f1d1d', '#fde68a'),
+  ],
+  'pesebre-madera-artesanal': [
+    createToyImage('🐑', '#78350f', '#fcd34d'),
+    createToyImage('🌟', '#14532d', '#fde047'),
+  ],
+  'luces-led-cascada': [
+    createToyImage('✨', '#14532d', '#fde047'),
+    createToyImage('💡', '#7c2d12', '#fef3c7'),
   ],
 }
 
@@ -293,6 +439,27 @@ const CATEGORY_INFO = {
       'Uso bajo supervisión de un adulto.',
       'Retira el embalaje antes de usar.',
       'No dejes al bebé solo durante el juego.',
+    ],
+  },
+  Navidad: {
+    highlights: [
+      'Colección especial de diciembre',
+      'Materiales seguros y resistentes',
+      'Listo para regalar y decorar',
+    ],
+    specs: [
+      { label: 'Temporada', value: 'Navidad y diciembre' },
+      { label: 'Contenido', value: 'Juguete y accesorios navideños' },
+      { label: 'Dimensiones del empaque', value: '32 × 24 × 12 cm' },
+      { label: 'Peso aproximado', value: '750 g' },
+    ],
+    materials:
+      'Poliéster suave, madera certificada y plástico ABS libre de BPA. Pinturas al agua no tóxicas y detalles bordados a mano.',
+    safety: [
+      'Uso bajo supervisión de un adulto.',
+      'Retira el embalaje, las cintas y las bolsas antes de usar.',
+      'Mantén las luces y los cables fuera del alcance de los niños pequeños.',
+      'Contiene piezas pequeñas. No apto para menores de 3 años sin supervisión.',
     ],
   },
 }

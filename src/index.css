@@ -1,9 +1,80 @@
 @import 'tailwindcss';
 
+/* ------------------------------------------------------------------ */
+/* Tema "juguetería"                                                   */
+/* ------------------------------------------------------------------ */
 /*
- * Base global pensada para móviles con notch y para evitar desbordes
- * horizontales cuando el usuario cambia la resolución o gira el dispositivo.
+ * La tienda usa una paleta cálida de feria: coral, naranja, amarillo sol,
+ * cielo y menta. Además remapeamos los tonos violeta/fucsia y los grises
+ * fríos que ya usaban las pantallas antiguas para que todo el sitio
+ * (catálogo, carrito, perfil y admin) comparta el mismo aspecto sin tener
+ * que reescribir cada clase utilitaria.
  */
+@theme {
+  --font-sans: 'Nunito', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+  --font-display: 'Baloo 2', 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-festive: 'Mountains of Christmas', 'Baloo 2', cursive;
+
+  /* Paleta navideña */
+  --color-xmas-crimson: #b91c1c;
+  --color-xmas-red: #dc2626;
+  --color-xmas-pine: #14532d;
+  --color-xmas-green: #15803d;
+  --color-xmas-gold: #f2b705;
+  --color-xmas-gold-deep: #b7791f;
+  --color-xmas-snow: #f8fbff;
+  --color-xmas-ice: #dbeafe;
+  --color-xmas-night: #0f172a;
+
+  --color-toy-cream: #fff8ef;
+  --color-toy-cream-deep: #ffeed9;
+  --color-toy-ink: #3b2a33;
+  --color-toy-coral: #ff5a5f;
+  --color-toy-orange: #ff8a3d;
+  --color-toy-sun: #ffc43d;
+  --color-toy-sky: #4cc9f0;
+  --color-toy-mint: #43aa8b;
+  --color-toy-grape: #7b61ff;
+  --color-toy-bubble: #ff70a6;
+
+  /* Violeta -> coral (color primario de la tienda). */
+  --color-violet-50: #fff1ef;
+  --color-violet-100: #ffe1dd;
+  --color-violet-200: #ffc7c0;
+  --color-violet-300: #ff9a92;
+  --color-violet-400: #f26d63;
+  --color-violet-500: #e0443c;
+  --color-violet-600: #d42f38;
+  --color-violet-700: #b3252d;
+  --color-violet-800: #92202a;
+  --color-violet-900: #7a1c24;
+
+  /* Fucsia -> ámbar/mandarina. */
+  --color-fuchsia-50: #fffbeb;
+  --color-fuchsia-100: #fef3c7;
+  --color-fuchsia-200: #fde68a;
+  --color-fuchsia-300: #fbbf24;
+  --color-fuchsia-400: #f59e0b;
+  --color-fuchsia-500: #d97706;
+  --color-fuchsia-600: #b45309;
+  --color-fuchsia-700: #92400e;
+  --color-fuchsia-800: #78350f;
+  --color-fuchsia-900: #642c0b;
+
+  /* Grises fríos -> neutros cálidos de madera clara. */
+  --color-slate-50: #fff8ef;
+  --color-slate-100: #fdf0e1;
+  --color-slate-200: #f6e3d0;
+  --color-slate-300: #e8d3bf;
+  --color-slate-400: #b5a196;
+  --color-slate-500: #8d7a70;
+  --color-slate-600: #6b5a52;
+  --color-slate-700: #52443d;
+  --color-slate-800: #3f342e;
+  --color-slate-900: #2f2622;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
@@ -16,9 +87,21 @@
     margin: 0;
     overflow-x: hidden;
     overflow-x: clip;
+    background-color: var(--color-toy-cream);
+    color: var(--color-toy-ink);
+    font-family: var(--font-sans);
     /* Respeta el área segura del notch en iPhone/Android. */
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 
   /* Los controles táctiles nunca deben quedar por debajo del mínimo
@@ -29,6 +112,7 @@
   select,
   textarea {
     touch-action: manipulation;
+    font-family: inherit;
   }
 
   /* Evita que un texto largo (correos, URLs) rompa el layout. */
@@ -37,6 +121,11 @@
   label,
   span {
     overflow-wrap: anywhere;
+  }
+
+  ::selection {
+    background-color: #ffd9a8;
+    color: #3b2a33;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -51,5 +140,576 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Animaciones                                                         */
+/* ------------------------------------------------------------------ */
+
+@keyframes toyFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes toyFloatTilt {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(5deg);
+  }
+}
+
+@keyframes toyPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toySlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toyFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes toyBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  75% {
+    transform: scale(0.94);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes toyWiggle {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes toyShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes toyBlob {
+  0%,
+  100% {
+    border-radius: 46% 54% 62% 38% / 48% 42% 58% 52%;
+  }
+  50% {
+    border-radius: 58% 42% 38% 62% / 55% 60% 40% 45%;
+  }
+}
+
+@keyframes toyConfettiFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -12vh, 0) rotate(0deg) scale(0.7);
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift, 0px), 105vh, 0)
+      rotate(var(--confetti-spin, 540deg)) scale(1);
+  }
+}
+
+@keyframes toyDot {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  40% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+@keyframes toyShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes toyRouteFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Animaciones navideñas                                               */
+/* ------------------------------------------------------------------ */
+
+@keyframes snowFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+  }
+  10% {
+    opacity: var(--snow-opacity, 0.85);
+  }
+  90% {
+    opacity: var(--snow-opacity, 0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--snow-drift, 20px), 108vh, 0)
+      rotate(var(--snow-spin, 360deg));
+  }
+}
+
+@keyframes xmasTwinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes xmasSwing {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes xmasSleigh {
+  0% {
+    transform: translate3d(-16%, 8px, 0) rotate(-3deg);
+  }
+  50% {
+    transform: translate3d(16%, -10px, 0) rotate(3deg);
+  }
+  100% {
+    transform: translate3d(-16%, 8px, 0) rotate(-3deg);
+  }
+}
+
+@keyframes xmasHoHo {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+  }
+}
+
+@keyframes xmasGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 183, 5, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 28px 6px rgba(242, 183, 5, 0.55);
+  }
+}
+
+@keyframes xmasGarland {
+  0%,
+  100% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: toyFloat 5s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: toyFloat 7.5s ease-in-out infinite;
+  }
+
+  .animate-float-tilt {
+    animation: toyFloatTilt 6s ease-in-out infinite;
+  }
+
+  .animate-pop-in {
+    animation: toyPopIn 0.72s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+  }
+
+  .animate-slide-up {
+    animation: toySlideUp 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-in {
+    animation: toyFadeIn 0.45s ease-out both;
+  }
+
+  .animate-bounce-in {
+    animation: toyBounceIn 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .animate-wiggle {
+    animation: toyWiggle 2.6s ease-in-out infinite;
+  }
+
+  .animate-shake {
+    animation: toyShake 0.5s ease-in-out both;
+  }
+
+  .animate-blob {
+    animation: toyBlob 12s ease-in-out infinite;
+  }
+
+  .animate-shine {
+    background-size: 200% 200%;
+    animation: toyShine 6s ease infinite;
+  }
+
+  .animate-route-fade {
+    animation: toyRouteFade 0.28s ease-out both;
+  }
+
+  /* Retardos escalonados para que los elementos entren uno tras otro. */
+  .stagger-1 {
+    animation-delay: 80ms;
+  }
+  .stagger-2 {
+    animation-delay: 160ms;
+  }
+  .stagger-3 {
+    animation-delay: 240ms;
+  }
+  .stagger-4 {
+    animation-delay: 320ms;
+  }
+  .stagger-5 {
+    animation-delay: 400ms;
+  }
+  .stagger-6 {
+    animation-delay: 480ms;
+  }
+  .stagger-7 {
+    animation-delay: 560ms;
+  }
+  .stagger-8 {
+    animation-delay: 640ms;
+  }
+
+  /* Fondo de puntitos tipo confeti, muy sutil. */
+  .toy-dots {
+    background-image: radial-gradient(
+      rgba(255, 138, 61, 0.16) 1.5px,
+      transparent 1.6px
+    );
+    background-size: 22px 22px;
+  }
+
+  /* Franja de caramelo para la cabecera. */
+  .toy-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #ff5a5f 0 14px,
+      #ffc43d 14px 28px,
+      #4cc9f0 28px 42px,
+      #43aa8b 42px 56px
+    );
+  }
+
+  .toy-gradient {
+    background-image: linear-gradient(
+      135deg,
+      #ff5a5f 0%,
+      #ff8a3d 52%,
+      #ffc43d 100%
+    );
+  }
+
+  .toy-gradient-text {
+    background-image: linear-gradient(
+      120deg,
+      #f43f45 0%,
+      #f7941d 48%,
+      #e07a0c 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Botón con volumen, como los juguetes de plástico. */
+  .toy-btn {
+    background-image: linear-gradient(
+      135deg,
+      #ffd166 0%,
+      #ffb020 55%,
+      #ff8a3d 100%
+    );
+    color: #4a2410;
+    box-shadow:
+      0 5px 0 #d97706,
+      0 12px 22px -8px rgba(217, 119, 6, 0.55);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      filter 0.15s ease;
+  }
+
+  .toy-btn:hover:not(:disabled) {
+    filter: brightness(1.05) saturate(1.05);
+    transform: translateY(-1px);
+    box-shadow:
+      0 6px 0 #d97706,
+      0 16px 26px -8px rgba(217, 119, 6, 0.6);
+  }
+
+  .toy-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow:
+      0 1px 0 #d97706,
+      0 6px 12px -6px rgba(217, 119, 6, 0.55);
+  }
+
+  .toy-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow:
+      0 4px 0 #d9b8a8,
+      0 8px 16px -10px rgba(80, 50, 40, 0.35);
+    filter: grayscale(0.3);
+  }
+
+  /* Tarjeta blanca con borde cálido y sombra suave. */
+  .toy-panel {
+    background-color: #fff;
+    border: 3px solid #ffe3c2;
+    box-shadow:
+      0 18px 40px -22px rgba(120, 70, 30, 0.35),
+      0 4px 0 #ffedd6;
+  }
+
+  /* Input redondeado con anillo coral al enfocar. */
+  .toy-input {
+    background-color: #fffdf9;
+    border: 2px solid #f6e3d0;
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      background-color 0.18s ease;
+  }
+
+  .toy-input:focus {
+    border-color: #ff8a3d;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(255, 196, 61, 0.3);
+    outline: none;
+  }
+
+  .toy-card-lift {
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.28s ease,
+      border-color 0.28s ease;
+  }
+
+  .toy-card-lift:hover {
+    transform: translateY(-7px) rotate(-0.6deg);
+  }
+
+  /* ---------------- Navidad ---------------- */
+
+  .font-festive {
+    font-family: var(--font-festive);
+  }
+
+  .animate-twinkle {
+    animation: xmasTwinkle 2.4s ease-in-out infinite;
+  }
+
+  .animate-swing {
+    transform-origin: top center;
+    animation: xmasSwing 4.5s ease-in-out infinite;
+  }
+
+  .animate-sleigh {
+    animation: xmasSleigh 9s ease-in-out infinite;
+  }
+
+  .animate-ho-ho {
+    animation: xmasHoHo 4s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: xmasGlow 2.8s ease-in-out infinite;
+  }
+
+  .animate-garland {
+    animation: xmasGarland 5s ease-in-out infinite;
+  }
+
+  /* Franja roja/verde/dorada tipo envoltura de regalo. */
+  .christmas-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      #b91c1c 0 16px,
+      #f2b705 16px 22px,
+      #14532d 22px 38px,
+      #f8fbff 38px 42px
+    );
+  }
+
+  .christmas-gradient {
+    background-image: linear-gradient(
+      135deg,
+      #7f1d1d 0%,
+      #b91c1c 38%,
+      #14532d 100%
+    );
+  }
+
+  .christmas-panel {
+    background-color: #fffdf8;
+    border: 3px solid #f3d9c2;
+    box-shadow:
+      0 22px 48px -28px rgba(127, 29, 29, 0.45),
+      0 4px 0 #ffe8d4;
+  }
+
+  .christmas-btn {
+    background-image: linear-gradient(135deg, #dc2626 0%, #b91c1c 55%, #7f1d1d 100%);
+    color: #fff;
+    box-shadow:
+      0 5px 0 #7f1d1d,
+      0 12px 24px -8px rgba(185, 28, 28, 0.6);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      filter 0.15s ease;
+  }
+
+  .christmas-btn:hover:not(:disabled) {
+    filter: brightness(1.07) saturate(1.05);
+    transform: translateY(-1px);
+    box-shadow:
+      0 6px 0 #7f1d1d,
+      0 16px 28px -8px rgba(185, 28, 28, 0.65);
+  }
+
+  .christmas-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow:
+      0 1px 0 #7f1d1d,
+      0 6px 12px -6px rgba(185, 28, 28, 0.55);
+  }
+
+  /* Nieve sobre el contenido, sin capturar clics. */
+  .snow-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .snow-flake {
+    position: absolute;
+    top: 0;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 0 6px rgba(219, 234, 254, 0.9);
+    animation-name: snowFall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform, opacity;
+  }
+
+  .christmas-glow-text {
+    text-shadow:
+      0 2px 0 rgba(127, 29, 29, 0.35),
+      0 0 22px rgba(242, 183, 5, 0.55);
+  }
+
+  /* Cinta dorada decorativa. */
+  .gold-ribbon {
+    background-image: linear-gradient(
+      100deg,
+      #f2b705 0%,
+      #ffe08a 35%,
+      #f2b705 55%,
+      #b7791f 100%
+    );
   }
 }

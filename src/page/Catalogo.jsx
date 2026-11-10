@@ -1,6 +1,11 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import ProductCard from '../components/ProductCard.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
+import {
+  ChristmasCountdown,
+  ChristmasLights,
+  SantaScene,
+} from '../components/ChristmasDecor.jsx'
 import { filterAndSortProducts } from '../lib/catalog.js'
 import { AGE_GROUPS, PRICE_MIN, PRICE_STEP } from '../data/products.js'
 import {
@@ -14,6 +19,8 @@ const priceFormatter = new Intl.NumberFormat('es-CO', {
   currency: 'COP',
   maximumFractionDigits: 0,
 })
+
+const QUICK_SEARCHES = ['Navidad', 'Papá Noel', 'Regalos', 'Árbol']
 
 function formatPrice(value) {
   return priceFormatter.format(value)
@@ -65,8 +72,10 @@ function XIcon({ className = 'h-4 w-4' }) {
 
 function FilterSection({ title, children }) {
   return (
-    <div className="border-t border-slate-100 pt-5">
-      <h3 className="mb-3 text-sm font-black text-slate-900">{title}</h3>
+    <div className="border-t-2 border-dashed border-[#ffe3c2] pt-5">
+      <h3 className="mb-3 font-display text-sm font-extrabold text-toy-ink">
+        {title}
+      </h3>
       {children}
     </div>
   )
@@ -90,12 +99,14 @@ function FiltersPanel({
   onClear,
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-[28px] border-[3px] border-[#ffe3c2] bg-white p-5 shadow-[0_16px_36px_-26px_rgba(120,70,30,0.45)]">
       <div className="mb-5 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-black text-slate-900">Filtros</h2>
+          <h2 className="font-display text-lg font-extrabold text-toy-ink">
+            Filtros
+          </h2>
           {activeFilterCount > 0 && (
-            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-violet-100 px-1.5 text-[11px] font-black text-violet-700">
+            <span className="grid h-5 min-w-5 animate-bounce-in place-items-center rounded-full bg-toy-coral px-1.5 text-[11px] font-black text-white">
               {activeFilterCount}
             </span>
           )}
@@ -103,7 +114,7 @@ function FiltersPanel({
         <button
           type="button"
           onClick={onClear}
-          className="text-xs font-bold text-violet-700 underline-offset-4 transition hover:text-fuchsia-600 hover:underline"
+          className="text-xs font-extrabold text-toy-coral underline-offset-4 transition hover:text-toy-orange hover:underline"
         >
           Limpiar
         </button>
@@ -120,7 +131,7 @@ function FiltersPanel({
                 type="checkbox"
                 checked={selectedCategories.includes(category)}
                 onChange={() => onToggleCategory(category)}
-                className="h-4 w-4 shrink-0 rounded border-slate-300 accent-violet-600"
+                className="h-4 w-4 shrink-0 rounded border-slate-300 accent-toy-coral"
               />
               {category}
             </label>
@@ -136,7 +147,7 @@ function FiltersPanel({
           id="age-filter"
           value={ageFilter}
           onChange={(event) => onAgeChange(event.target.value)}
-          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+          className="toy-input w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700"
         >
           <option value="all">Todas las edades</option>
           {AGE_GROUPS.map((group) => (
@@ -158,7 +169,7 @@ function FiltersPanel({
                 type="checkbox"
                 checked={selectedBrands.includes(brand)}
                 onChange={() => onToggleBrand(brand)}
-                className="h-4 w-4 shrink-0 rounded border-slate-300 accent-violet-600"
+                className="h-4 w-4 shrink-0 rounded border-slate-300 accent-toy-coral"
               />
               {brand}
             </label>
@@ -181,7 +192,7 @@ function FiltersPanel({
               step={PRICE_STEP}
               value={minPrice}
               onChange={(event) => onMinPriceChange(Number(event.target.value))}
-              className="mt-2 w-full cursor-pointer accent-violet-600"
+              className="mt-2 w-full cursor-pointer accent-toy-coral"
             />
           </div>
 
@@ -198,7 +209,7 @@ function FiltersPanel({
               step={PRICE_STEP}
               value={maxPrice}
               onChange={(event) => onMaxPriceChange(Number(event.target.value))}
-              className="mt-2 w-full cursor-pointer accent-violet-600"
+              className="mt-2 w-full cursor-pointer accent-toy-coral"
             />
           </div>
         </div>
@@ -265,55 +276,164 @@ function CatalogoContent({ catalog }) {
     setSort('popularity')
   }
 
+  function showChristmasProducts() {
+    setSearch('')
+    setSelectedCategories(['Navidad'])
+    setSelectedBrands([])
+    setAgeFilter('all')
+    setMinPrice(PRICE_MIN)
+    setMaxPrice(meta.priceMax)
+    setSort('popularity')
+    window.setTimeout(() => {
+      document
+        .getElementById('resultados-title')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 80)
+  }
+
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+    <div className="toy-dots flex min-h-screen flex-col bg-toy-cream text-toy-ink">
       <StoreHeader />
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-700 via-fuchsia-600 to-rose-500 px-6 py-8 text-white shadow-xl shadow-fuchsia-900/20 sm:px-10 sm:py-10">
-            <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10" />
-            <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-white/10" />
+          <section className="relative overflow-hidden rounded-[36px] border-[3px] border-amber-300 bg-gradient-to-br from-[#7f1d1d] via-[#b91c1c] to-[#14532d] px-6 py-10 text-white shadow-[0_30px_70px_-34px_rgba(127,29,29,0.75)] sm:px-10 sm:py-12">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-amber-300/20 blur-2xl"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-24 left-1/4 h-64 w-64 rounded-full bg-emerald-400/20 blur-2xl"
+            />
+            <ChristmasLights
+              count={32}
+              className="absolute inset-x-0 top-0 h-6 px-3 opacity-90"
+            />
 
-            <div className="relative max-w-2xl">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-black uppercase tracking-wider backdrop-blur">
-                Catálogo de juguetes
-              </span>
-              <h1 className="mt-3 text-3xl font-black leading-tight tracking-tight sm:text-4xl">
-                Encuentra el juguete ideal
-              </h1>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
-                Busca por nombre o etiqueta y filtra por categoría, edad recomendada, marca y
-                rango de precio.
-              </p>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-14 animate-twinkle text-3xl sm:left-6"
+            >
+              ⭐
+            </span>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-8 right-6 hidden animate-twinkle text-3xl [animation-delay:0.7s] sm:block"
+            >
+              ✨
+            </span>
 
-              <div className="relative mt-5">
-                <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Busca: lego, peluche, safari, ciencia…"
-                  aria-label="Buscar juguetes por nombre o etiqueta"
-                  className="w-full rounded-2xl border-0 bg-white py-4 pl-12 pr-12 text-base text-slate-900 shadow-xl shadow-violet-950/10 outline-none placeholder:text-slate-400 focus:ring-4 focus:ring-white/60"
-                />
-                {search && (
+            <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
+              <div className="max-w-2xl animate-slide-up">
+                <span className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-red-900 shadow-sm ring-2 ring-amber-200/60">
+                  🎄 Especial Navidad · Diciembre
+                </span>
+                <h1 className="christmas-glow-text mt-3 font-festive text-4xl font-bold leading-[1.05] tracking-wide text-white sm:text-6xl">
+                  La Navidad llegó a{' '}
+                  <span className="text-amber-300">Mi Juguetería</span>
+                </h1>
+                <p className="mt-3 max-w-xl text-sm font-semibold leading-relaxed text-amber-50/90 sm:text-base">
+                  Papá Noel y sus elfos ya están preparando los regalos. Descubre
+                  juguetes, decoración y sorpresas de diciembre para toda la
+                  familia.
+                </p>
+
+                <ChristmasCountdown className="mt-5" />
+
+                <div className="relative mt-6 animate-slide-up stagger-2">
+                  <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-red-700" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Busca: Papá Noel, regalos, árbol, elfos…"
+                    aria-label="Buscar juguetes por nombre o etiqueta"
+                    className="w-full rounded-2xl border-[3px] border-amber-200 bg-white py-4 pl-12 pr-12 text-base font-semibold text-slate-900 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.6)] outline-none placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-300/40"
+                  />
+                  {search && (
+                    <button
+                      type="button"
+                      onClick={() => setSearch('')}
+                      aria-label="Limpiar búsqueda"
+                      className="absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-slate-400 transition hover:rotate-90 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <XIcon />
+                    </button>
+                  )}
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2 animate-slide-up stagger-3">
+                  <span className="text-xs font-bold text-amber-100/80">
+                    Prueba con:
+                  </span>
+                  {QUICK_SEARCHES.map((term) => (
+                    <button
+                      key={term}
+                      type="button"
+                      onClick={() => setSearch(term)}
+                      className="rounded-full border-2 border-white/30 bg-white/10 px-3 py-1 text-xs font-extrabold text-white backdrop-blur transition hover:-translate-y-0.5 hover:border-amber-300 hover:bg-white hover:text-red-800"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3 animate-slide-up stagger-4 sm:flex-row">
                   <button
                     type="button"
-                    onClick={() => setSearch('')}
-                    aria-label="Limpiar búsqueda"
-                    className="absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                    onClick={showChristmasProducts}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-red-900 shadow-[0_5px_0_#b7791f] transition hover:-translate-y-0.5 hover:bg-amber-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/70"
                   >
-                    <XIcon />
+                    🎁 Ver juguetes de Navidad
                   </button>
-                )}
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-white/40 bg-white/10 px-5 py-3 text-sm font-extrabold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
+                  >
+                    ❄️ Ver todo el catálogo
+                  </button>
+                </div>
               </div>
 
-              <p className="mt-2.5 text-xs text-white/70">
-                Búsqueda en tiempo real por nombre o etiqueta.
-              </p>
+              <div className="relative hidden flex-col items-center justify-center lg:flex">
+                <SantaScene />
+                <p className="mt-4 text-center text-xs font-bold uppercase tracking-widest text-amber-200">
+                  Papá Noel y sus elfos te esperan
+                </p>
+              </div>
+            </div>
+
+            <div className="relative mt-7 flex justify-center lg:hidden">
+              <SantaScene compact />
             </div>
           </section>
+
+          <div className="mt-6 grid gap-3 animate-slide-up stagger-4 sm:grid-cols-3">
+            {[
+              { emoji: '🎁', title: 'Regalos de diciembre', text: 'Listos para sorprender' },
+              { emoji: '🚚', title: 'Envío navideño', text: 'A todo el país' },
+              { emoji: '❄️', title: 'Magia garantizada', text: 'Juguetes certificados' },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="flex items-center gap-3 rounded-2xl border-2 border-white bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-50 text-xl ring-2 ring-amber-100" aria-hidden="true">
+                  {item.emoji}
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-display text-sm font-extrabold text-toy-ink">
+                    {item.title}
+                  </span>
+                  <span className="block text-xs font-semibold text-slate-500">
+                    {item.text}
+                  </span>
+                </span>
+              </div>
+            ))}
+          </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
             <aside
@@ -342,10 +462,10 @@ function CatalogoContent({ catalog }) {
             <section aria-labelledby="resultados-title">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 id="resultados-title" className="text-lg font-black tracking-tight text-slate-900">
+                  <h2 id="resultados-title" className="font-display text-2xl font-extrabold tracking-tight text-toy-ink">
                     Juguetes
                   </h2>
-                  <p className="text-sm text-slate-500" aria-live="polite">
+                  <p className="text-sm font-semibold text-slate-500" aria-live="polite">
                     {filteredProducts.length}{' '}
                     {filteredProducts.length === 1 ? 'resultado' : 'resultados'}
                   </p>
@@ -357,12 +477,12 @@ function CatalogoContent({ catalog }) {
                     onClick={() => setFiltersOpen((open) => !open)}
                     aria-expanded={filtersOpen}
                     aria-controls="panel-filtros"
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 lg:hidden"
+                    className="inline-flex items-center gap-2 rounded-xl border-2 border-[#ffe3c2] bg-white px-3 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-toy-sun lg:hidden"
                   >
                     <FilterIcon className="h-4 w-4" />
                     Filtros
                     {activeFilterCount > 0 && (
-                      <span className="grid h-5 min-w-5 place-items-center rounded-full bg-violet-100 px-1.5 text-[11px] font-black text-violet-700">
+                      <span className="grid h-5 min-w-5 place-items-center rounded-full bg-toy-coral px-1.5 text-[11px] font-black text-white">
                         {activeFilterCount}
                       </span>
                     )}
@@ -375,7 +495,7 @@ function CatalogoContent({ catalog }) {
                     id="sort"
                     value={sort}
                     onChange={(event) => setSort(event.target.value)}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+                    className="toy-input rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700"
                   >
                     <option value="popularity">Más populares</option>
                     <option value="price-asc">Precio: menor a mayor</option>
@@ -387,28 +507,35 @@ function CatalogoContent({ catalog }) {
               {filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {filteredProducts.map((product, index) => (
-                    <ProductCard
+                    <div
                       key={product.id}
-                      product={product}
-                      priority={index < 3}
-                    />
+                      className="animate-pop-in"
+                      style={{
+                        animationDelay: `${Math.min(index, 9) * 70}ms`,
+                      }}
+                    >
+                      <ProductCard
+                        product={product}
+                        priority={index < 3}
+                      />
+                    </div>
                   ))}
                 </div>
               ) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+                <div className="animate-pop-in rounded-[30px] border-[3px] border-dashed border-[#ffd9a8] bg-white px-6 py-14 text-center">
                   <div
-                    className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-violet-100 via-fuchsia-50 to-amber-100 text-5xl"
+                    className="mx-auto flex h-28 w-28 animate-float items-center justify-center rounded-full bg-gradient-to-br from-toy-sun/50 via-toy-orange/20 to-toy-bubble/20 text-5xl"
                     aria-hidden="true"
                   >
                     🧸
                   </div>
                   <div
-                    className="mx-auto -mt-3 grid h-11 w-11 place-items-center rounded-full bg-white text-violet-600 shadow-md ring-1 ring-violet-100"
+                    className="mx-auto -mt-3 grid h-11 w-11 place-items-center rounded-full bg-white text-toy-coral shadow-md ring-2 ring-[#ffe3c2]"
                     aria-hidden="true"
                   >
                     <SearchIcon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-5 text-xl font-black tracking-tight text-slate-900">
+                  <h3 className="mt-5 font-display text-2xl font-extrabold tracking-tight text-toy-ink">
                     No encontramos ese juguete
                   </h3>
                   <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
@@ -418,7 +545,7 @@ function CatalogoContent({ catalog }) {
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-violet-600/20 transition hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200"
+                    className="toy-btn mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-extrabold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-toy-sun/60"
                   >
                     Limpiar filtros
                   </button>
@@ -429,8 +556,15 @@ function CatalogoContent({ catalog }) {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-        Mi Juguetería · Juguetes seguros para cada etapa
+      <footer className="relative mt-6 overflow-hidden border-t-2 border-red-900/10 bg-gradient-to-r from-[#7f1d1d] via-[#b91c1c] to-[#14532d] py-7 text-center text-white">
+        <div aria-hidden="true" className="christmas-stripes h-1.5 w-full" />
+        <p className="mt-4 font-festive text-lg font-bold tracking-wide text-amber-200">
+          🎄 Mi Juguetería · Especial Navidad
+        </p>
+        <p className="mt-1 text-xs font-semibold text-amber-50/80">
+          Juguetes seguros para cada etapa · Papá Noel y sus elfos te desean
+          felices fiestas
+        </p>
       </footer>
     </div>
   )
@@ -438,22 +572,22 @@ function CatalogoContent({ catalog }) {
 
 function CatalogLoading() {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+    <div className="toy-dots flex min-h-screen flex-col bg-toy-cream text-toy-ink">
       <StoreHeader />
       <main className="flex-1" aria-busy="true" aria-live="polite">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="h-56 animate-pulse rounded-3xl bg-gradient-to-br from-violet-200 via-fuchsia-200 to-rose-200" />
+          <div className="h-56 animate-pulse rounded-[36px] bg-gradient-to-br from-[#7f1d1d] via-[#b91c1c] to-[#14532d]" />
           <div className="mt-8 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-            <div className="hidden h-96 animate-pulse rounded-3xl bg-white lg:block" />
+            <div className="hidden h-96 animate-pulse rounded-[28px] bg-white lg:block" />
             <div>
-              <p className="text-sm font-semibold text-slate-500">
+              <p className="font-display text-sm font-bold text-slate-500">
                 Cargando catálogo…
               </p>
               <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div
                     key={index}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
+                    className="overflow-hidden rounded-[28px] border-[3px] border-[#ffe3c2] bg-white"
                   >
                     <div className="aspect-[4/3] animate-pulse bg-slate-200" />
                     <div className="space-y-2 p-4">

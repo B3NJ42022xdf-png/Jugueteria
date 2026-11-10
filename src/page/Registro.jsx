@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import FloatingToys from '../components/FloatingToys.jsx'
+import ToyConfetti from '../components/ToyConfetti.jsx'
 import {
   DuplicateEmailError,
   emailExists,
@@ -29,7 +31,7 @@ const DUPLICATE_EMAIL_MESSAGE =
 
 const BENEFITS = [
   'Compra segura y protegida',
-  'Guarda tus juguetes favoritos',
+  'Guarda tus regalos favoritos',
   'Sigue el estado de tus pedidos',
 ]
 
@@ -211,19 +213,23 @@ function Brand({ compact = false }) {
   return (
     <Link
       to="/catalogo"
-      className="flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-300"
+      className="group flex min-w-0 items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/60"
       aria-label="Mi Juguetería, ir al catálogo"
     >
-      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 text-2xl shadow-lg shadow-fuchsia-500/30" aria-hidden="true">
-        🧸
+      <span
+        className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-red-700 via-red-600 to-red-500 text-2xl shadow-lg shadow-red-900/30 ring-2 ring-amber-200 transition-transform duration-300 group-hover:-rotate-6"
+        aria-hidden="true"
+      >
+        🎄
+        <span className="absolute -right-1.5 -top-2 text-sm">🎅</span>
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-lg font-black tracking-tight text-slate-900">
+        <span className="block truncate font-festive text-xl font-bold tracking-wide text-red-800">
           Mi Juguetería
         </span>
         {!compact && (
-          <span className="block text-xs font-medium text-slate-500">
-            Juguetes que despiertan sonrisas
+          <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-700">
+            Especial Navidad
           </span>
         )}
       </span>
@@ -233,17 +239,18 @@ function Brand({ compact = false }) {
 
 function PageShell({ children }) {
   return (
-    <div className="relative flex min-h-dvh w-full flex-col overflow-x-hidden bg-gradient-to-br from-amber-50 via-rose-50 to-sky-100">
+    <div className="toy-dots relative flex min-h-dvh w-full flex-col overflow-x-hidden bg-toy-cream">
       <a
         href="#registro-form"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-violet-700 focus:shadow-xl"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-red-700 focus:shadow-xl"
       >
         Saltar al formulario de registro
       </a>
 
-      <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 hidden h-72 w-72 rounded-full bg-fuchsia-300/40 blur-3xl sm:block" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-20 h-80 w-80 rounded-full bg-sky-300/40 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/3 hidden h-52 w-52 rounded-full bg-amber-200/50 blur-3xl md:block" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 hidden h-72 w-72 animate-blob bg-red-300/30 blur-3xl sm:block" />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-20 h-80 w-80 animate-blob bg-emerald-300/30 blur-3xl [animation-delay:1.6s]" />
+      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/3 hidden h-52 w-52 animate-blob bg-amber-300/40 blur-3xl [animation-delay:2.4s] md:block" />
+      <FloatingToys />
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-10">
         <header className="flex items-center justify-between gap-3">
@@ -254,13 +261,13 @@ function PageShell({ children }) {
           <nav className="ml-auto flex shrink-0 items-center gap-1.5" aria-label="Navegación de registro">
             <Link
               to="/catalogo"
-              className="hidden min-h-11 items-center rounded-full px-3 text-sm font-bold text-slate-600 transition hover:bg-white/70 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-300 sm:inline-flex"
+              className="hidden min-h-11 items-center rounded-full px-3 text-sm font-bold text-slate-600 transition hover:-rotate-2 hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/60 sm:inline-flex"
             >
               Catálogo
             </Link>
             <Link
               to="/login"
-              className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full bg-white/80 px-4 text-sm font-bold text-violet-700 shadow-sm transition hover:bg-white hover:text-violet-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-300"
+              className="inline-flex min-h-11 items-center whitespace-nowrap rounded-full bg-white px-4 text-sm font-extrabold text-red-700 ring-2 ring-red-100 transition hover:-translate-y-0.5 hover:ring-amber-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/60"
             >
               Iniciar sesión
             </Link>
@@ -268,30 +275,31 @@ function PageShell({ children }) {
         </header>
 
         <div className="mt-5 grid flex-1 items-center gap-8 sm:mt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:gap-12">
-          <aside className="hidden min-w-0 flex-col gap-8 lg:flex">
+          <aside className="hidden min-w-0 animate-slide-up flex-col gap-8 lg:flex">
             <Brand />
 
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-violet-700">
+              <span className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-red-900 shadow-sm ring-2 ring-amber-200">
                 <SparklesIcon className="h-4 w-4" />
-                Nueva cuenta
+                Nueva cuenta navideña
               </span>
-              <h2 className="mt-4 text-balance text-4xl font-black leading-[1.1] tracking-tight text-slate-900 xl:text-5xl">
-                Tu próxima aventura{' '}
-                <span className="bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent">
-                  empieza aquí
-                </span>
+              <h2 className="mt-4 text-balance font-festive text-4xl font-bold leading-[1.05] tracking-wide text-red-800 xl:text-5xl">
+                Tu Navidad{' '}
+                <span className="text-emerald-700">empieza aquí</span>
               </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-slate-600">
-                Crea tu cuenta para descubrir juguetes increíbles, comprar de forma segura y
-                recibir sorpresas pensadas para ti.
+              <p className="mt-4 max-w-md text-base font-semibold leading-relaxed text-slate-600">
+                Crea tu cuenta para descubrir los juguetes de diciembre, comprar
+                de forma segura y recibir sorpresas de Papá Noel.
               </p>
             </div>
 
             <ul className="space-y-3">
-              {BENEFITS.map((benefit) => (
-                <li key={benefit} className="flex items-center gap-3 text-sm font-semibold text-slate-700">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-600">
+              {BENEFITS.map((benefit, index) => (
+                <li
+                  key={benefit}
+                  className={`flex animate-slide-up items-center gap-3 text-sm font-bold text-slate-700 stagger-${index + 1}`}
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-600 ring-2 ring-white">
                     <CheckCircleIcon className="h-4 w-4" />
                   </span>
                   {benefit}
@@ -301,18 +309,18 @@ function PageShell({ children }) {
 
             <div className="grid grid-cols-3 gap-3">
               {[
-                { emoji: '🧸', label: 'Peluches' },
-                { emoji: '🚀', label: 'Aventura' },
-                { emoji: '🎨', label: 'Creatividad' },
-              ].map((toy) => (
+                { emoji: '🎅', label: 'Papá Noel' },
+                { emoji: '🧝', label: 'Elfos' },
+                { emoji: '🎁', label: 'Regalos' },
+              ].map((toy, index) => (
                 <div
                   key={toy.label}
-                  className="min-w-0 rounded-2xl border border-white/70 bg-white/70 p-4 text-center shadow-sm backdrop-blur"
+                  className={`min-w-0 animate-pop-in rounded-2xl border-2 border-amber-100 bg-white/80 p-4 text-center shadow-sm backdrop-blur stagger-${index + 3}`}
                 >
-                  <span className="block text-3xl" aria-hidden="true">
+                  <span className="block animate-float text-3xl" aria-hidden="true">
                     {toy.emoji}
                   </span>
-                  <span className="mt-2 block truncate text-xs font-bold text-slate-600">
+                  <span className="mt-2 block truncate text-xs font-extrabold text-slate-600">
                     {toy.label}
                   </span>
                 </div>
@@ -337,6 +345,7 @@ function TextField({
   below,
   describedBy,
   required = true,
+  className = '',
   ...inputProps
 }) {
   const describedByIds = [
@@ -348,18 +357,18 @@ function TextField({
     .join(' ')
 
   return (
-    <div className="min-w-0">
-      <label htmlFor={id} className="mb-1.5 block text-sm font-bold text-slate-700">
+    <div className={`min-w-0 ${className}`}>
+      <label htmlFor={id} className="mb-1.5 block text-sm font-extrabold text-slate-700">
         {label}
         {required && (
-          <span className="ml-1 text-fuchsia-600" aria-hidden="true">
+          <span className="ml-1 text-toy-coral" aria-hidden="true">
             *
           </span>
         )}
       </label>
 
       <div className="relative">
-        <span className="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-slate-400" aria-hidden="true">
+        <span className="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-toy-orange/80" aria-hidden="true">
           {icon}
         </span>
 
@@ -371,11 +380,11 @@ function TextField({
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={describedByIds || undefined}
           className={[
-            'min-h-12 w-full rounded-xl border bg-white py-3 pl-11 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-4',
+            'toy-input min-h-12 w-full rounded-2xl py-3 pl-11 text-base text-toy-ink placeholder:text-slate-400',
             rightSlot ? 'pr-14' : 'pr-4',
             error
-              ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-100'
-              : 'border-slate-200 focus:border-violet-500 focus:ring-violet-100',
+              ? '!border-rose-400 focus:!border-rose-500 focus:shadow-[0_0_0_4px_rgba(244,63,94,0.18)]'
+              : '',
           ].join(' ')}
           {...inputProps}
         />
@@ -518,7 +527,7 @@ function Registro() {
         replace: true,
         state: { registered: true, email: registeredEmail },
       })
-    }, 2500)
+    }, 3200)
 
     return () => window.clearTimeout(timer)
   }, [success, navigate, registeredEmail])
@@ -719,41 +728,51 @@ function Registro() {
         <section
           role="status"
           aria-live="polite"
-          className="min-w-0 rounded-[28px] border border-white/70 bg-white/95 p-6 text-center shadow-2xl shadow-violet-900/10 backdrop-blur sm:p-10"
+          className="relative min-w-0 animate-pop-in overflow-hidden rounded-[32px] border-[3px] border-amber-200 bg-white p-6 text-center shadow-[0_24px_50px_-26px_rgba(127,29,29,0.45)] sm:p-10"
         >
-          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-emerald-100 text-emerald-600">
-            <CheckCircleIcon className="h-10 w-10" />
+          <ToyConfetti />
+          <div aria-hidden="true" className="christmas-stripes absolute inset-x-0 top-0 h-1.5" />
+          <div className="relative">
+            <div className="mx-auto grid h-24 w-24 animate-bounce-in place-items-center rounded-full bg-emerald-100 text-emerald-600 ring-4 ring-white">
+              <CheckCircleIcon className="h-12 w-12" />
+            </div>
+
+            <div className="mt-3 text-4xl" aria-hidden="true">
+              <span className="inline-block animate-wiggle">🎅</span>
+              <span className="ml-1 inline-block animate-wiggle [animation-delay:0.3s]">🎁</span>
+            </div>
+
+            <h1 className="mt-2 text-balance font-festive text-3xl font-bold tracking-wide text-red-800">
+              ¡Cuenta navideña creada!
+            </h1>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
+              Registramos{' '}
+              <strong className="break-all text-slate-800">{registeredEmail}</strong>{' '}
+              de forma segura. Ya puedes iniciar sesión y empezar a preparar tu
+              lista de regalos.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/login"
+                state={{ registered: true, email: registeredEmail }}
+                className="christmas-btn inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl px-5 py-3 text-base font-extrabold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/60"
+              >
+                Ir a iniciar sesión
+              </Link>
+              <Link
+                to="/catalogo"
+                className="inline-flex min-h-12 flex-1 items-center justify-center rounded-2xl border-2 border-amber-200 bg-white px-5 py-3 text-base font-extrabold text-red-700 transition hover:-translate-y-0.5 hover:border-amber-400 hover:text-red-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/50"
+              >
+                Seguir explorando
+              </Link>
+            </div>
+
+            <p className="mt-4 flex items-center justify-center gap-2 text-xs font-bold text-red-700">
+              <Spinner className="h-4 w-4" />
+              Redirigiendo al inicio de sesión…
+            </p>
           </div>
-
-          <h1 className="mt-6 text-balance text-2xl font-black tracking-tight text-slate-900">
-            ¡Cuenta creada con éxito!
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">
-            Registramos{' '}
-            <strong className="break-all text-slate-800">{registeredEmail}</strong>{' '}
-            de forma segura. Ya puedes iniciar sesión y empezar a comprar.
-          </p>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link
-              to="/login"
-              state={{ registered: true, email: registeredEmail }}
-              className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-5 py-3 text-base font-bold text-white shadow-lg shadow-fuchsia-500/25 transition hover:from-violet-700 hover:to-fuchsia-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-300"
-            >
-              Ir a iniciar sesión
-            </Link>
-            <Link
-              to="/catalogo"
-              className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-base font-bold text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200"
-            >
-              Seguir explorando
-            </Link>
-          </div>
-
-          <p className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-violet-600">
-            <Spinner className="h-4 w-4" />
-            Redirigiendo al inicio de sesión…
-          </p>
         </section>
       </PageShell>
     )
@@ -763,18 +782,19 @@ function Registro() {
     <PageShell>
       <section
         aria-labelledby="registro-title"
-        className="min-w-0 rounded-[28px] border border-white/70 bg-white/95 p-5 shadow-2xl shadow-violet-900/10 backdrop-blur sm:p-7 lg:p-8"
+        className="min-w-0 animate-pop-in rounded-[32px] border-[3px] border-amber-200 bg-white p-5 shadow-[0_26px_55px_-28px_rgba(127,29,29,0.5)] sm:p-7 lg:p-8"
       >
         <div className="mb-5 sm:mb-6">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-violet-700 lg:hidden">
+          <span className="inline-flex animate-slide-up items-center gap-1.5 rounded-full bg-amber-200 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-red-900 lg:hidden">
             <SparklesIcon className="h-3.5 w-3.5" />
-            Nueva cuenta
+            Nueva cuenta navideña
           </span>
-          <h1 id="registro-title" className="mt-3 text-balance text-2xl font-black tracking-tight text-slate-900 sm:text-3xl lg:mt-0">
+          <h1 id="registro-title" className="mt-3 animate-slide-up text-balance font-festive text-3xl font-bold tracking-wide text-red-800 sm:text-4xl lg:mt-0">
             Crea tu cuenta
           </h1>
-          <p className="mt-1 text-sm leading-relaxed text-slate-600">
-            Es rápido, seguro y gratis. Solo necesitamos cuatro datos.
+          <p className="mt-1 animate-slide-up text-sm font-semibold leading-relaxed text-slate-600 stagger-1">
+            Es rápido, seguro y gratis. Solo necesitamos cuatro datos para
+            empezar la Navidad.
           </p>
         </div>
 
@@ -782,7 +802,7 @@ function Registro() {
           <div
             role="status"
             aria-live="polite"
-            className="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold leading-relaxed text-amber-800"
+            className="mb-4 flex animate-bounce-in items-start gap-2 rounded-2xl border-2 border-amber-200 bg-amber-50 p-3 text-sm font-bold leading-relaxed text-amber-800"
           >
             <WifiOffIcon className="mt-0.5 h-4 w-4 shrink-0" />
             <span className="min-w-0 break-words">
@@ -794,7 +814,7 @@ function Registro() {
         {generalError && (
           <div
             role="alert"
-            className="mb-4 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm font-semibold leading-relaxed text-rose-700"
+            className="mb-4 flex animate-shake items-start gap-2 rounded-2xl border-2 border-rose-200 bg-rose-50 p-3 text-sm font-bold leading-relaxed text-rose-700"
           >
             <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
             <span className="min-w-0 break-words">{generalError}</span>
@@ -823,6 +843,7 @@ function Registro() {
             error={touched.fullName ? errors.fullName : undefined}
             icon={<UserIcon />}
             maxLength={80}
+            className="animate-slide-up stagger-2"
           />
 
           <TextField
@@ -864,6 +885,7 @@ function Registro() {
               </span>
             }
             maxLength={120}
+            className="animate-slide-up stagger-3"
           />
 
           <TextField
@@ -882,6 +904,7 @@ function Registro() {
             icon={<PhoneIcon />}
             hint="Incluye el código de tu país. Ej.: +57 300 123 4567."
             maxLength={25}
+            className="animate-slide-up stagger-4"
           />
 
           <TextField
@@ -927,14 +950,15 @@ function Registro() {
               ) : null
             }
             maxLength={128}
+            className="animate-slide-up stagger-5"
           />
 
-          <div className="space-y-2.5 pt-1">
+          <div className="animate-slide-up space-y-2.5 pt-1 stagger-6">
             <button
               type="submit"
               disabled={!isFormValid || emailTaken || submitting || !online}
               aria-disabled={!isFormValid || emailTaken || submitting || !online}
-              className="flex min-h-12 w-full touch-manipulation items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-5 py-3.5 text-base font-bold text-white shadow-lg shadow-fuchsia-500/25 transition hover:from-violet-700 hover:to-fuchsia-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+              className="christmas-btn flex min-h-12 w-full touch-manipulation items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-base font-extrabold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/60"
             >
               {submitting ? (
                 <>
@@ -942,11 +966,11 @@ function Registro() {
                   Creando cuenta…
                 </>
               ) : (
-                'Crear mi cuenta'
+                '🎁 Crear mi cuenta navideña'
               )}
             </button>
 
-            <p className="text-center text-xs leading-relaxed text-slate-500" aria-live="polite">
+            <p className="text-center text-xs font-semibold leading-relaxed text-slate-500" aria-live="polite">
               {submitting
                 ? 'Estamos procesando tu registro de forma segura. No cierres esta página.'
                 : !online
@@ -958,17 +982,17 @@ function Registro() {
           </div>
         </form>
 
-        <p className="mt-5 text-center text-sm text-slate-600">
+        <p className="mt-5 text-center text-sm font-semibold text-slate-600">
           ¿Ya tienes una cuenta?{' '}
           <Link
             to="/login"
-            className="inline-flex min-h-11 items-center font-bold text-violet-700 underline-offset-4 transition hover:text-fuchsia-600 hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200"
+            className="inline-flex min-h-11 items-center font-extrabold text-red-700 underline-offset-4 transition hover:text-red-500 hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/50"
           >
             Inicia sesión
           </Link>
         </p>
 
-        <div className="mt-4 grid grid-cols-1 gap-1.5 border-t border-slate-100 pt-4 text-[11px] text-slate-500 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-1.5 border-t-2 border-dashed border-amber-200 pt-4 text-[11px] font-semibold text-slate-500 sm:grid-cols-3">
           <span className="flex items-center justify-center gap-1.5">
             <ShieldIcon className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
             Cifrado AES-256
