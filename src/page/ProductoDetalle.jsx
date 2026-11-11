@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import StoreHeader from '../components/StoreHeader.jsx'
 import { useCart } from '../context/cartContext.js'
 import { getProductDetail, getProductReviews } from '../data/productDetails.js'
+import { CART_TOAST_EVENT } from '../lib/cartEvents.js'
 import { getProductById } from '../services/productService.js'
 import {
   InsufficientStockError,
@@ -309,6 +310,19 @@ function ProductoDetalleContent({ id }) {
         text: `Agregamos ${selectedQuantity} ${selectedQuantity === 1 ? 'unidad' : 'unidades'} de ${product.name} al carrito.`,
       })
       setQuantity(1)
+
+      window.dispatchEvent(
+        new CustomEvent(CART_TOAST_EVENT, {
+          detail: {
+            id: product.id,
+            name: product.name,
+            image:
+              detail.gallery?.[activeImage] ??
+              product.imageUrl ??
+              product.image,
+          },
+        }),
+      )
     } catch (error) {
       if (error instanceof InsufficientStockError) {
         setStock(error.availableStock)

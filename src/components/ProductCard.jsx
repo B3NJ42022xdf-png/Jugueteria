@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext.js'
+import { CART_TOAST_EVENT } from '../lib/cartEvents.js'
 import { InsufficientStockError } from '../services/storeService.js'
 
 const priceFormatter = new Intl.NumberFormat('es-CO', {
@@ -148,6 +149,9 @@ export default function ProductCard({ product, priority = false }) {
   const badgeStyle = BADGE_STYLES[badge.toUpperCase()] ?? DEFAULT_BADGE_STYLE
   const categoryStyle =
     CATEGORY_STYLES[product.category] ?? DEFAULT_CATEGORY_STYLE
+  const discount = Number(product.discount) || 0
+  const oldPrice = Number(product.oldPrice) || 0
+  const hasOffer = discount > 0 && oldPrice > product.price
 
   function scheduleReset(delay) {
     window.clearTimeout(resetTimerRef.current)
@@ -168,6 +172,18 @@ export default function ProductCard({ product, priority = false }) {
       setStatus('added')
       setFeedback('Agregado al carrito')
       scheduleReset(2000)
+
+      // El contador del encabezado se actualiza con el contexto del carrito;
+      // este evento solo dispara la notificación flotante global.
+      window.dispatchEvent(
+        new CustomEvent(CART_TOAST_EVENT, {
+          detail: {
+            id: product.id,
+            name: product.name,
+            image: imageUrl,
+          },
+        }),
+      )
     } catch (error) {
       setStatus('error')
       setFeedback(
@@ -213,13 +229,19 @@ export default function ProductCard({ product, priority = false }) {
           </span>
         )}
 
-        {product.category === 'Navidad' && (
-          <span
-            aria-hidden="true"
-            className="absolute right-3 top-3 animate-twinkle select-none text-xl drop-shadow-sm"
-          >
-            ❄️
+        {hasOffer ? (
+          <span className="absolute right-3 top-3 rotate-3 rounded-full bg-gradient-to-br from-red-600 to-rose-500 px-2.5 py-1 text-[11px] font-black text-white shadow-md ring-2 ring-white/70">
+            -{discount}%
           </span>
+        ) : (
+          product.category === 'Navidad' && (
+            <span
+              aria-hidden="true"
+              className="absolute right-3 top-3 animate-twinkle select-none text-xl drop-shadow-sm"
+            >
+              ❄️
+            </span>
+          )
         )}
 
         <span
@@ -255,14 +277,25 @@ export default function ProductCard({ product, priority = false }) {
           {product.name}
         </h3>
 
+        {hasOffer && (
+          <span className="mt-1.5 inline-flex w-fit items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-200">
+            <span aria-hidden="true">🎄</span> Oferta de temporada
+          </span>
+        )}
+
         <div className="mt-2">
           <Stars rating={product.rating} reviews={reviewsCount} />
         </div>
 
         <div className="mt-auto flex flex-wrap items-end justify-between gap-x-5 gap-y-3 pt-4">
           <div className="min-w-0">
-            <span className="block text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            <span className="flex items-baseline gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
               Precio
+              {hasOffer && (
+                <span className="text-[11px] font-bold normal-case tracking-normal text-slate-400 line-through tabular-nums">
+                  {priceFormatter.format(oldPrice)}
+                </span>
+              )}
             </span>
             <p className="whitespace-nowrap font-display text-2xl font-extrabold tracking-tight text-toy-ink tabular-nums">
               {priceFormatter.format(product.price)}

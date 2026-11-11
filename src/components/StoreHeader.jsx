@@ -148,8 +148,9 @@ export default function StoreHeader() {
               <CartIcon className="h-5 w-5" />
               {itemCount > 0 && (
                 <span
+                  key={itemCount}
                   aria-hidden="true"
-                  className="absolute -right-1 -top-1 grid h-5 min-w-5 animate-bounce-in place-items-center rounded-full bg-emerald-600 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-white"
+                  className="absolute -right-1 -top-1 grid h-5 min-w-5 animate-cart-bump place-items-center rounded-full bg-emerald-600 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-white"
                 >
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>

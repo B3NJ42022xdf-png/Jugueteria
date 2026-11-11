@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import CartToast from './components/CartToast.jsx'
 import Snowfall from './components/Snowfall.jsx'
 import Catalogo from './page/Catalogo'
 
@@ -103,6 +104,7 @@ function App() {
     <Suspense fallback={<RouteFallback />}>
       <RouteMeta />
       <Snowfall />
+      <CartToast />
       <AnimatedRoutes />
     </Suspense>
   )

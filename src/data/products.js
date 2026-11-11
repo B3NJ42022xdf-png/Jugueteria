@@ -43,6 +43,25 @@ const UNSPLASH = (id) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=80`
 
 /**
+ * Descuentos de temporada (porcentaje). Se aplican sobre el precio actual y
+ * sirven para mostrar la etiqueta de oferta y el precio anterior tachado en la
+ * tarjeta. El precio de venta (`price`) no cambia, así el carrito y los pedidos
+ * siguen siendo consistentes.
+ */
+const SEASONAL_DISCOUNTS = {
+  'santa-peluche-gigante': 20,
+  'arbol-navideno-interactivo': 15,
+  'tren-navideno-electrico': 25,
+  'caja-regalos-sorpresa': 30,
+  'muneco-nieve-peluche': 15,
+  'set-elfos-ayudantes': 10,
+  'luces-led-cascada': 18,
+  'lego-castillo-medieval': 10,
+  'oso-peluche-gigante': 12,
+  'kit-ciencias-volcan': 20,
+}
+
+/**
  * Fuente única de juguetes del catálogo: la colección base más la colección
  * especial de Navidad y diciembre.
  * Se mantienen los IDs originales para conservar stock, reseñas y enlaces.
@@ -487,13 +506,24 @@ export const PRODUCTS = [
     tags: ['navidad', 'diciembre', 'luces', 'led', 'decoración', 'cascada'],
     popularity: 86,
   },
-].map((product) => ({
-  ...product,
-  // Alias de compatibilidad con las pantallas que ya consumían estos campos.
-  image: product.imageUrl,
-  reviews: product.reviewsCount,
-  age: product.ageRange,
-}))
+].map((product) => {
+  const discount = SEASONAL_DISCOUNTS[product.id] ?? 0
+  const oldPrice =
+    discount > 0
+      ? Math.ceil(product.price / (1 - discount / 100) / 100) * 100
+      : null
+
+  return {
+    ...product,
+    // Etiqueta de oferta de temporada y precio anterior (tachado en la tarjeta).
+    discount,
+    oldPrice,
+    // Alias de compatibilidad con las pantallas que ya consumían estos campos.
+    image: product.imageUrl,
+    reviews: product.reviewsCount,
+    age: product.ageRange,
+  }
+})
 
 export const CATEGORIES = [...new Set(PRODUCTS.map((product) => product.category))].sort(
   (a, b) => a.localeCompare(b, 'es'),

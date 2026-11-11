@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import ProductCard from '../components/ProductCard.jsx'
+import SearchAutocomplete from '../components/SearchAutocomplete.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
 import {
   ChristmasCountdown,
@@ -53,15 +54,6 @@ function FilterIcon({ className = 'h-5 w-5' }) {
       <path d="M4 6h16" />
       <path d="M7 12h10" />
       <path d="M10 18h4" />
-    </svg>
-  )
-}
-
-function XIcon({ className = 'h-4 w-4' }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className} aria-hidden="true">
-      <path d="m6 6 12 12" />
-      <path d="m18 6-12 12" />
     </svg>
   )
 }
@@ -179,9 +171,45 @@ function FiltersPanel({
 
       <FilterSection title="Rango de precio">
         <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                Mínimo
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={PRICE_MIN}
+                max={priceMax}
+                step={PRICE_STEP}
+                value={minPrice}
+                onFocus={(event) => event.target.select()}
+                onChange={(event) => onMinPriceChange(Number(event.target.value))}
+                className="toy-input w-full rounded-xl px-3 py-2 text-sm font-bold tabular-nums text-slate-700"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                Máximo
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={PRICE_MIN}
+                max={priceMax}
+                step={PRICE_STEP}
+                value={maxPrice}
+                onFocus={(event) => event.target.select()}
+                onChange={(event) => onMaxPriceChange(Number(event.target.value))}
+                className="toy-input w-full rounded-xl px-3 py-2 text-sm font-bold tabular-nums text-slate-700"
+              />
+            </label>
+          </div>
+
           <div>
             <div className="flex items-center justify-between gap-2 text-xs font-semibold text-slate-500">
-              <label htmlFor="price-min">Precio mínimo</label>
+              <label htmlFor="price-min">Ajustar mínimo</label>
               <span className="font-black text-slate-800">{formatPrice(minPrice)}</span>
             </div>
             <input
@@ -192,13 +220,13 @@ function FiltersPanel({
               step={PRICE_STEP}
               value={minPrice}
               onChange={(event) => onMinPriceChange(Number(event.target.value))}
-              className="mt-2 w-full cursor-pointer accent-toy-coral"
+              className="mt-2 w-full cursor-pointer accent-red-600"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between gap-2 text-xs font-semibold text-slate-500">
-              <label htmlFor="price-max">Precio máximo</label>
+              <label htmlFor="price-max">Ajustar máximo</label>
               <span className="font-black text-slate-800">{formatPrice(maxPrice)}</span>
             </div>
             <input
@@ -209,9 +237,13 @@ function FiltersPanel({
               step={PRICE_STEP}
               value={maxPrice}
               onChange={(event) => onMaxPriceChange(Number(event.target.value))}
-              className="mt-2 w-full cursor-pointer accent-toy-coral"
+              className="mt-2 w-full cursor-pointer accent-red-600"
             />
           </div>
+
+          <p className="rounded-xl bg-red-50 px-3 py-2 text-center text-xs font-bold text-red-800 ring-1 ring-red-100">
+            Mostrando de {formatPrice(minPrice)} a {formatPrice(maxPrice)}
+          </p>
         </div>
       </FilterSection>
     </div>
@@ -226,7 +258,7 @@ function CatalogoContent({ catalog }) {
   const products = catalog.products
   const meta = catalog.meta
 
-  const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedBrands, setSelectedBrands] = useState([])
   const [ageFilter, setAgeFilter] = useState('all')
@@ -234,7 +266,7 @@ function CatalogoContent({ catalog }) {
   const [maxPrice, setMaxPrice] = useState(meta.priceMax)
   const [sort, setSort] = useState('popularity')
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const deferredSearch = useDeferredValue(search)
+  const deferredSearch = useDeferredValue(searchInput)
 
   const activeFilterCount =
     selectedCategories.length +
@@ -259,15 +291,17 @@ function CatalogoContent({ catalog }) {
   )
 
   function handleMinPriceChange(value) {
-    setMinPrice(Math.min(value, maxPrice))
+    if (!Number.isFinite(value)) return
+    setMinPrice(Math.max(PRICE_MIN, Math.min(value, maxPrice)))
   }
 
   function handleMaxPriceChange(value) {
-    setMaxPrice(Math.max(value, minPrice))
+    if (!Number.isFinite(value)) return
+    setMaxPrice(Math.max(minPrice, Math.min(value, meta.priceMax)))
   }
 
   function clearFilters() {
-    setSearch('')
+    setSearchInput('')
     setSelectedCategories([])
     setSelectedBrands([])
     setAgeFilter('all')
@@ -277,7 +311,7 @@ function CatalogoContent({ catalog }) {
   }
 
   function showChristmasProducts() {
-    setSearch('')
+    setSearchInput('')
     setSelectedCategories(['Navidad'])
     setSelectedBrands([])
     setAgeFilter('all')
@@ -333,7 +367,7 @@ function CatalogoContent({ catalog }) {
                   La Navidad llegó a{' '}
                   <span className="text-amber-300">Mi Juguetería</span>
                 </h1>
-                <p className="mt-3 max-w-xl text-sm font-semibold leading-relaxed text-amber-50/90 sm:text-base">
+                <p className="christmas-banner-copy mt-3 max-w-xl rounded-2xl border border-white/20 bg-red-950/35 px-4 py-3 text-sm font-semibold leading-relaxed text-white shadow-sm backdrop-blur-sm sm:text-base">
                   Papá Noel y sus elfos ya están preparando los regalos. Descubre
                   juguetes, decoración y sorpresas de diciembre para toda la
                   familia.
@@ -341,26 +375,12 @@ function CatalogoContent({ catalog }) {
 
                 <ChristmasCountdown className="mt-5" />
 
-                <div className="relative mt-6 animate-slide-up stagger-2">
-                  <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-red-700" />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Busca: Papá Noel, regalos, árbol, elfos…"
-                    aria-label="Buscar juguetes por nombre o etiqueta"
-                    className="w-full rounded-2xl border-[3px] border-amber-200 bg-white py-4 pl-12 pr-12 text-base font-semibold text-slate-900 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.6)] outline-none placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-300/40"
+                <div className="mt-6 animate-slide-up stagger-2">
+                  <SearchAutocomplete
+                    products={products}
+                    value={searchInput}
+                    onChange={setSearchInput}
                   />
-                  {search && (
-                    <button
-                      type="button"
-                      onClick={() => setSearch('')}
-                      aria-label="Limpiar búsqueda"
-                      className="absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-slate-400 transition hover:rotate-90 hover:bg-red-50 hover:text-red-700"
-                    >
-                      <XIcon />
-                    </button>
-                  )}
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2 animate-slide-up stagger-3">
@@ -371,7 +391,7 @@ function CatalogoContent({ catalog }) {
                     <button
                       key={term}
                       type="button"
-                      onClick={() => setSearch(term)}
+                      onClick={() => setSearchInput(term)}
                       className="rounded-full border-2 border-white/30 bg-white/10 px-3 py-1 text-xs font-extrabold text-white backdrop-blur transition hover:-translate-y-0.5 hover:border-amber-300 hover:bg-white hover:text-red-800"
                     >
                       {term}
@@ -390,7 +410,7 @@ function CatalogoContent({ catalog }) {
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-white/40 bg-white/10 px-5 py-3 text-sm font-extrabold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-yellow-400 bg-transparent px-5 py-3 text-sm font-extrabold text-amber-100 transition hover:-translate-y-0.5 hover:bg-yellow-400/10 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300/50"
                   >
                     ❄️ Ver todo el catálogo
                   </button>
