@@ -146,7 +146,12 @@ export default function ProductCard({ product, priority = false }) {
   const stock = product.stock
   const soldOut = stock === 0
   const badge = String(product.badge ?? '').trim()
-  const badgeStyle = BADGE_STYLES[badge.toUpperCase()] ?? DEFAULT_BADGE_STYLE
+  // Etiqueta dinámica: si el producto no trae badge pero está entre los más
+  // populares del catálogo, se marca como "Más vendido" automáticamente.
+  const displayBadge =
+    badge || ((product.popularity ?? 0) >= 90 ? 'MÁS VENDIDO' : '')
+  const badgeStyle =
+    BADGE_STYLES[displayBadge.toUpperCase()] ?? DEFAULT_BADGE_STYLE
   const categoryStyle =
     CATEGORY_STYLES[product.category] ?? DEFAULT_CATEGORY_STYLE
   const discount = Number(product.discount) || 0
@@ -196,7 +201,11 @@ export default function ProductCard({ product, priority = false }) {
   }
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[28px] border-[3px] border-[#ffe3c2] bg-white shadow-[0_14px_34px_-22px_rgba(120,70,30,0.45)] toy-card-lift focus-within:ring-4 focus-within:ring-toy-sun/50 hover:border-toy-sun/70 hover:shadow-[0_26px_50px_-24px_rgba(255,90,95,0.45)]">
+    <article
+      className={`group relative flex flex-col overflow-hidden rounded-[28px] border-[3px] border-[#ffe3c2] bg-white shadow-[0_14px_34px_-22px_rgba(120,70,30,0.45)] toy-card-lift focus-within:ring-4 focus-within:ring-toy-sun/50 hover:border-toy-sun/70 hover:shadow-[0_26px_50px_-24px_rgba(255,90,95,0.45)] ${
+        status === 'added' ? 'animate-added-flash' : ''
+      }`}
+    >
       <Link
         to={`/producto/${product.id}`}
         aria-label={`Ver detalle de ${product.name}`}
@@ -221,17 +230,22 @@ export default function ProductCard({ product, priority = false }) {
           className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100"
         />
 
-        {badge && (
+        {displayBadge && (
           <span
             className={`absolute left-3 top-3 -rotate-3 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide shadow-md ring-2 ring-white/70 ${badgeStyle}`}
           >
-            {badge}
+            {displayBadge}
           </span>
         )}
 
         {hasOffer ? (
-          <span className="absolute right-3 top-3 rotate-3 rounded-full bg-gradient-to-br from-red-600 to-rose-500 px-2.5 py-1 text-[11px] font-black text-white shadow-md ring-2 ring-white/70">
-            -{discount}%
+          <span className="absolute right-3 top-3 flex rotate-3 flex-col items-end gap-1">
+            <span className="rounded-full bg-gradient-to-br from-red-600 to-rose-500 px-2.5 py-1 text-[11px] font-black text-white shadow-md ring-2 ring-white/70">
+              -{discount}%
+            </span>
+            <span className="rounded-full bg-white/95 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-red-700 shadow-sm ring-1 ring-red-200">
+              ¡Oferta!
+            </span>
           </span>
         ) : (
           product.category === 'Navidad' && (
@@ -279,7 +293,7 @@ export default function ProductCard({ product, priority = false }) {
 
         {hasOffer && (
           <span className="mt-1.5 inline-flex w-fit items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-200">
-            <span aria-hidden="true">🎄</span> Oferta de temporada
+            <span aria-hidden="true">🎄</span> ¡Oferta de temporada!
           </span>
         )}
 

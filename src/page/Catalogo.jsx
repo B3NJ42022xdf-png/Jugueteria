@@ -367,7 +367,7 @@ function CatalogoContent({ catalog }) {
                   La Navidad llegó a{' '}
                   <span className="text-amber-300">Mi Juguetería</span>
                 </h1>
-                <p className="christmas-banner-copy mt-3 max-w-xl rounded-2xl border border-white/20 bg-red-950/35 px-4 py-3 text-sm font-semibold leading-relaxed text-white shadow-sm backdrop-blur-sm sm:text-base">
+                <p className="christmas-banner-copy mt-3 max-w-xl rounded-2xl border border-white/25 bg-red-950/55 px-4 py-3 text-sm font-semibold leading-relaxed text-white shadow-[0_10px_30px_-16px_rgba(0,0,0,0.8)] ring-1 ring-black/10 backdrop-blur-sm sm:text-base">
                   Papá Noel y sus elfos ya están preparando los regalos. Descubre
                   juguetes, decoración y sorpresas de diciembre para toda la
                   familia.
@@ -400,17 +400,19 @@ function CatalogoContent({ catalog }) {
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3 animate-slide-up stagger-4 sm:flex-row">
+                  {/* Acción principal: sólida, con sombra inferior y elevación al pasar el cursor. */}
                   <button
                     type="button"
                     onClick={showChristmasProducts}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-red-900 shadow-[0_5px_0_#b7791f] transition hover:-translate-y-0.5 hover:bg-amber-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/70"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-amber-300 to-amber-500 px-6 py-3 text-sm font-black text-red-950 shadow-[0_6px_0_#b7791f,0_16px_30px_-14px_rgba(0,0,0,0.7)] transition-all duration-200 hover:-translate-y-1 hover:from-amber-200 hover:to-amber-400 hover:shadow-[0_9px_0_#b7791f,0_22px_36px_-14px_rgba(0,0,0,0.75)] active:translate-y-0 active:shadow-[0_3px_0_#b7791f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/80"
                   >
                     🎁 Ver juguetes de Navidad
                   </button>
+                  {/* Acción secundaria: outline con fondo sutil, sin competir con la principal. */}
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-yellow-400 bg-transparent px-5 py-3 text-sm font-extrabold text-amber-100 transition hover:-translate-y-0.5 hover:bg-yellow-400/10 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300/50"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-yellow-300/90 bg-white/10 px-6 py-3 text-sm font-extrabold text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-yellow-300 hover:bg-yellow-300/20 hover:text-white active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300/50"
                   >
                     ❄️ Ver todo el catálogo
                   </button>
