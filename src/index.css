@@ -798,3 +798,77 @@
       0 0 14px rgba(0, 0, 0, 0.35);
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Impresión del comprobante                                           */
+/* ------------------------------------------------------------------ */
+
+/*
+ * En la pantalla de éxito solo debe imprimirse `.print-receipt`.
+ * Se oculta todo con `visibility` (conserva el layout) y se saca el
+ * comprobante del flujo para que quede al inicio de la hoja.
+ */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-receipt,
+  .print-receipt * {
+    visibility: visible !important;
+  }
+
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+
+  .print-receipt {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 4mm 4mm !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    color: #1f2937 !important;
+    font-size: 12px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-receipt * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+  }
+
+  .print-receipt img {
+    max-width: 100% !important;
+  }
+
+  .print-receipt table {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .print-receipt tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-receipt thead {
+    display: table-header-group;
+  }
+}

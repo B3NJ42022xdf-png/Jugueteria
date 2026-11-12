@@ -116,6 +116,20 @@ function nextReceiptNumber(receipts, type) {
   }
 }
 
+/**
+ * Código de pedido amigable para la pantalla de éxito: #NAV-2026-0001.
+ * Se calcula sobre los comprobantes existentes para no repetir secuencia.
+ */
+function nextOrderCode(receipts) {
+  const year = new Date().getFullYear()
+  const lastSequence = receipts.reduce((max, receipt) => {
+    const match = /^NAV-(\d{4})-(\d+)$/.exec(String(receipt.orderCode ?? ''))
+    return match ? Math.max(max, Number(match[2])) : max
+  }, 0)
+
+  return `NAV-${year}-${String(lastSequence + 1).padStart(4, '0')}`
+}
+
 function buildReceiptItems(items) {
   return items.map((item, index) => {
     const product = item.product ?? {}
@@ -587,6 +601,9 @@ export async function issueReceipt({
   customer = {},
   shipping = 0,
   currency = 'COP',
+  shippingAddress = '',
+  billingAddress = '',
+  paymentMethod = '',
 }) {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error('El comprobante necesita al menos un artículo.')
@@ -602,6 +619,9 @@ export async function issueReceipt({
     max: 80,
     fallback: 'Cliente de demostración',
   })
+  const deliveryAddress = sanitizePlainText(shippingAddress, { max: 160 })
+  const invoiceAddress = sanitizePlainText(billingAddress, { max: 160 })
+  const paymentLabel = sanitizePlainText(paymentMethod, { max: 60 })
 
   if (!isValidEmail(email)) {
     throw new Error('El correo del cliente no es válido.')
@@ -632,6 +652,7 @@ export async function issueReceipt({
     series: numbering.series,
     sequence: numbering.sequence,
     number: numbering.number,
+    orderCode: nextOrderCode(receipts),
     issuedAt: new Date().toISOString(),
     currency,
     store: STORE_FISCAL,
@@ -639,7 +660,12 @@ export async function issueReceipt({
       name: customerName,
       email,
       taxId,
-      taxIdLabel: type === 'factura' ? 'NIT' : 'Documento',
+      taxIdLabel: type === 'factura' ? 'RUC' : 'DNI',
+    },
+    shippingAddress: deliveryAddress,
+    billingAddress: invoiceAddress || deliveryAddress,
+    payment: {
+      method: paymentLabel || 'No especificado',
     },
     items: receiptItems,
     totals: {
