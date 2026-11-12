@@ -12,6 +12,7 @@ import Catalogo from './page/Catalogo'
 const Admin = lazy(() => import('./page/Admin'))
 const CalificarProducto = lazy(() => import('./page/CalificarProducto'))
 const Carrito = lazy(() => import('./page/Carrito'))
+const Checkout = lazy(() => import('./page/Checkout'))
 const Login = lazy(() => import('./page/Login'))
 const OrdenDetalle = lazy(() => import('./page/OrdenDetalle'))
 const Perfil = lazy(() => import('./page/Perfil'))
@@ -24,6 +25,7 @@ const ROUTE_TITLES = [
   { prefix: '/orden/', title: 'Detalle del pedido' },
   { prefix: '/catalogo', title: 'Catálogo de juguetes' },
   { prefix: '/carrito', title: 'Mi carrito' },
+  { prefix: '/checkout', title: 'Resumen de pago' },
   { prefix: '/perfil', title: 'Mi perfil' },
   { prefix: '/admin', title: 'Panel de administración' },
   { prefix: '/registro', title: 'Crear cuenta' },
@@ -83,6 +85,7 @@ function AnimatedRoutes() {
         <Route path="/catalogo" element={<Catalogo />} />
         <Route path="/producto/:id" element={<ProductoDetalle />} />
         <Route path="/carrito" element={<Carrito />} />
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/orden/:id" element={<OrdenDetalle />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/admin" element={<Admin />} />

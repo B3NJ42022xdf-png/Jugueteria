@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import StoreHeader from '../components/StoreHeader.jsx'
 import { useCart } from '../context/cartContext.js'
-import { getSession } from '../services/authService.js'
-import { issueReceipt } from '../services/receiptService.js'
+import {
+  calculateShipping,
+  FREE_SHIPPING_FROM,
+} from '../lib/cartTotals.js'
 import {
   InsufficientStockError,
   validateCartStock,
@@ -14,9 +16,6 @@ const priceFormatter = new Intl.NumberFormat('es-CO', {
   currency: 'COP',
   maximumFractionDigits: 0,
 })
-
-const FREE_SHIPPING_FROM = 150000
-const SHIPPING_COST = 12900
 
 function formatPrice(value) {
   return priceFormatter.format(value)
@@ -71,14 +70,6 @@ function AlertIcon({ className = 'h-5 w-5' }) {
       <path d="M10.3 3.6 2.2 18a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z" />
       <path d="M12 9v4" />
       <path d="M12 17h.01" />
-    </svg>
-  )
-}
-
-function CheckIcon({ className = 'h-4 w-4' }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="m5 12 4.5 4.5L19 7" />
     </svg>
   )
 }
@@ -214,23 +205,13 @@ export default function Carrito() {
     subtotal,
     changeQuantity,
     removeItem,
-    completePurchase,
   } = useCart()
-  const navigate = useNavigate()
 
   const [stockInfo, setStockInfo] = useState({})
   const [stockVersion, setStockVersion] = useState(0)
   const [pendingId, setPendingId] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [actionError, setActionError] = useState(null)
-  const [checkout, setCheckout] = useState(null)
-  const [checkingOut, setCheckingOut] = useState(false)
-  const [receiptType, setReceiptType] = useState('boleta')
-  const [customerName, setCustomerName] = useState('Cliente de demostración')
-  const [customerEmail, setCustomerEmail] = useState(
-    () => getSession()?.email ?? 'cliente@ejemplo.com',
-  )
-  const [customerTaxId, setCustomerTaxId] = useState('')
 
   const snapshot = useMemo(
     () =>
@@ -285,8 +266,7 @@ export default function Carrito() {
     .map((item) => ({ item, info: stockInfo[item.id] }))
     .filter(({ info }) => info && (info.changed || info.insufficient))
 
-  const shipping =
-    items.length === 0 || subtotal >= FREE_SHIPPING_FROM ? 0 : SHIPPING_COST
+  const shipping = calculateShipping(subtotal, items.length)
   const total = subtotal + shipping
 
   async function handleQuantity(item, quantity) {
@@ -294,7 +274,6 @@ export default function Carrito() {
 
     setPendingId(item.id)
     setActionError(null)
-    setCheckout(null)
 
     try {
       await changeQuantity(item.id, quantity)
@@ -333,7 +312,6 @@ export default function Carrito() {
 
     setPendingId(item.id)
     setActionError(null)
-    setCheckout(null)
 
     try {
       await removeItem(item.id)
@@ -359,86 +337,6 @@ export default function Carrito() {
       setActionError('No pudimos actualizar el stock. Intenta de nuevo.')
     } finally {
       setRefreshing(false)
-    }
-  }
-
-  async function handleCheckout() {
-    if (items.length === 0 || checkingOut) return
-
-    const email = customerEmail.trim()
-    const taxId = customerTaxId.trim()
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setCheckout({
-        type: 'error',
-        text: 'Ingresa un correo válido para enviarte el comprobante.',
-      })
-      return
-    }
-
-    if (receiptType === 'factura' && !taxId) {
-      setCheckout({
-        type: 'error',
-        text: 'Ingresa el NIT/RUC para emitir la factura electrónica.',
-      })
-      return
-    }
-
-    setCheckingOut(true)
-    setCheckout(null)
-    setActionError(null)
-
-    try {
-      const results = await validateCartStock(snapshot)
-      setStockInfo(
-        Object.fromEntries(results.map((result) => [result.productId, result])),
-      )
-
-      const problems = results.filter((result) => result.insufficient)
-
-      if (problems.length > 0) {
-        const names = problems
-          .map(
-            (result) =>
-              items.find((item) => item.id === result.productId)?.product.name,
-          )
-          .filter(Boolean)
-
-        setCheckout({
-          type: 'warning',
-          text:
-            names.length === 1
-              ? `No pudimos avanzar a la caja: ${names[0]} ya no tiene unidades suficientes. Ajusta la cantidad marcada.`
-              : `No pudimos avanzar a la caja: ${names.join(', ')} ya no tienen unidades suficientes. Ajusta las cantidades marcadas.`,
-        })
-        return
-      }
-
-      // La transacción está confirmada: se emite el comprobante, se envía el
-      // correo simulado, se registra la contabilidad y se descuenta el stock.
-      const receipt = await issueReceipt({
-        items,
-        type: receiptType,
-        customer: {
-          name: customerName.trim() || 'Cliente de demostración',
-          email,
-          taxId,
-        },
-        shipping,
-      })
-
-      completePurchase(snapshot)
-      navigate(`/orden/${receipt.id}`)
-    } catch (error) {
-      setCheckout({
-        type: 'error',
-        text:
-          error instanceof Error && error.message
-            ? error.message
-            : 'No pudimos emitir el comprobante. Intenta de nuevo.',
-      })
-    } finally {
-      setCheckingOut(false)
     }
   }
 
@@ -579,7 +477,7 @@ export default function Carrito() {
                           aria-label={`Ver detalle de ${item.product.name}`}
                         >
                           <img
-                            src={item.product.image}
+                            src={item.product.imageUrl ?? item.product.image}
                             alt={item.product.name}
                             width="80"
                             height="80"
@@ -664,103 +562,6 @@ export default function Carrito() {
 
               <aside className="space-y-4 lg:sticky lg:top-24">
                 <section
-                  aria-labelledby="comprobante-title"
-                  className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
-                >
-                  <h2
-                    id="comprobante-title"
-                    className="text-base font-black text-slate-900"
-                  >
-                    Comprobante electrónico
-                  </h2>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                    Se emitirá automáticamente al confirmar la compra.
-                  </p>
-
-                  <div
-                    className="mt-3 grid grid-cols-2 gap-2"
-                    role="group"
-                    aria-label="Tipo de comprobante"
-                  >
-                    {[
-                      { value: 'boleta', label: 'Boleta', hint: 'Persona natural' },
-                      { value: 'factura', label: 'Factura', hint: 'Empresa / NIT' },
-                    ].map((option) => {
-                      const active = receiptType === option.value
-
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => setReceiptType(option.value)}
-                          aria-pressed={active}
-                          className={`rounded-xl border px-3 py-2 text-left transition ${
-                            active
-                              ? 'border-violet-500 bg-violet-50 ring-2 ring-violet-100'
-                              : 'border-slate-200 bg-white hover:bg-slate-50'
-                          }`}
-                        >
-                          <span
-                            className={`block text-sm font-black ${
-                              active ? 'text-violet-700' : 'text-slate-700'
-                            }`}
-                          >
-                            {option.label}
-                          </span>
-                          <span className="block text-[10px] text-slate-400">
-                            {option.hint}
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  <div className="mt-3 space-y-3">
-                    <label className="block">
-                      <span className="text-[11px] font-bold text-slate-600">
-                        Nombre o razón social
-                      </span>
-                      <input
-                        type="text"
-                        value={customerName}
-                        onChange={(event) => setCustomerName(event.target.value)}
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
-                      />
-                    </label>
-
-                    <label className="block">
-                      <span className="text-[11px] font-bold text-slate-600">
-                        Correo electrónico
-                      </span>
-                      <input
-                        type="email"
-                        value={customerEmail}
-                        onChange={(event) => setCustomerEmail(event.target.value)}
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
-                      />
-                      <span className="mt-1 block text-[10px] text-slate-400">
-                        Aquí enviaremos el comprobante en PDF y XML.
-                      </span>
-                    </label>
-
-                    {receiptType === 'factura' && (
-                      <label className="block">
-                        <span className="text-[11px] font-bold text-slate-600">
-                          NIT / RUC
-                        </span>
-                        <input
-                          type="text"
-                          value={customerTaxId}
-                          onChange={(event) => setCustomerTaxId(event.target.value)}
-                          placeholder="900.123.456-7"
-                          className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
-                        />
-                      </label>
-                    )}
-                  </div>
-                </section>
-
-                <section
                   aria-labelledby="resumen-title"
                   className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
                 >
@@ -800,43 +601,21 @@ export default function Carrito() {
                     </p>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={handleCheckout}
-                    disabled={checkingOut}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-5 py-3.5 text-base font-black text-white shadow-lg shadow-fuchsia-500/25 transition hover:from-violet-700 hover:to-fuchsia-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-300 disabled:cursor-wait disabled:opacity-60 disabled:shadow-none"
+                  <Link
+                    to="/checkout"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-5 py-3.5 text-base font-black text-white shadow-lg shadow-fuchsia-500/25 transition hover:from-violet-700 hover:to-fuchsia-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-300"
                   >
-                    {checkingOut ? 'Emitiendo comprobante…' : 'Finalizar compra'}
-                    {!checkingOut && <ArrowRightIcon />}
-                  </button>
+                    Finalizar compra
+                    <ArrowRightIcon />
+                  </Link>
 
-                  <p className="mt-3 flex items-start justify-center gap-1.5 text-center text-[11px] leading-relaxed text-slate-400">
-                    <ShieldIcon className="mt-0.5 shrink-0" />
-                    Al finalizar se emite tu comprobante electrónico y se envía por
-                    correo con PDF y XML.
+                  <p className="mt-3 flex items-start gap-1.5 text-left text-[11px] leading-relaxed text-slate-400">
+                    <ShieldIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span className="min-w-0">
+                      Compra protegida. En el siguiente paso eliges boleta o
+                      factura y confirmas el pago.
+                    </span>
                   </p>
-
-                  {checkout && (
-                    <div
-                      role={checkout.type === 'success' ? 'status' : 'alert'}
-                      className={`mt-3 rounded-xl border p-3 text-xs font-semibold ${
-                        checkout.type === 'success'
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                          : checkout.type === 'warning'
-                            ? 'border-amber-200 bg-amber-50 text-amber-800'
-                            : 'border-rose-200 bg-rose-50 text-rose-700'
-                      }`}
-                    >
-                      <span className="flex items-start gap-1.5">
-                        {checkout.type === 'success' ? (
-                          <CheckIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                        ) : (
-                          <AlertIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                        )}
-                        {checkout.text}
-                      </span>
-                    </div>
-                  )}
                 </section>
               </aside>
             </div>
