@@ -4,8 +4,8 @@
  * el mismo envío y total.
  */
 
-export const FREE_SHIPPING_FROM = 150000
-export const SHIPPING_COST = 12900
+export const FREE_SHIPPING_FROM = 150
+export const SHIPPING_COST = 12.9
 
 /** El envío es gratis desde el umbral o cuando el carrito está vacío. */
 export function calculateShipping(subtotal, itemCount) {

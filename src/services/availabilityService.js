@@ -273,7 +273,7 @@ export function calculateMonthlyUptime(incidents, now = new Date()) {
     totalMinutes: round(elapsedMinutes),
     monthMinutes: round(totalMinutes),
     downtimeMinutes: round(downtimeMinutes),
-    monthLabel: new Intl.DateTimeFormat('es-CO', {
+    monthLabel: new Intl.DateTimeFormat('es-PE', {
       month: 'long',
       year: 'numeric',
     }).format(now),
@@ -480,7 +480,7 @@ export function resolveIncident(incidentId, resolvedBy = 'admin') {
  */
 export async function sendTestAlert() {
   const message = `Alerta de prueba · Mi Juguetería · ${new Date().toLocaleString(
-    'es-CO',
+    'es-PE',
   )} · Objetivo ${UPTIME_TARGET}% mensual`
   let delivered = false
   let channel = 'Panel'

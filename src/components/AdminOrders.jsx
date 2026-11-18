@@ -5,18 +5,19 @@ import {
   updateShipmentStatus,
 } from '../services/orderService.js'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
-const dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateTimeFormatter = new Intl.DateTimeFormat('es-PE', {
   dateStyle: 'medium',
   timeStyle: 'short',
 })
 
-const dateFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateFormatter = new Intl.DateTimeFormat('es-PE', {
   day: '2-digit',
   month: 'short',
   year: 'numeric',
@@ -62,7 +63,7 @@ const FILTERS = [
 ]
 
 function formatPrice(value) {
-  return priceFormatter.format(Math.round(Number(value) || 0))
+  return priceFormatter.format(Number(value) || 0)
 }
 
 function formatDateTime(value) {
@@ -558,8 +559,8 @@ export default function AdminOrders({ session }) {
 
       {orders.length === 0 ? (
         <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
-          <span className="text-5xl" aria-hidden="true">
-            📦
+          <span aria-hidden="true">
+            <PackageIcon className="mx-auto h-12 w-12 text-slate-300" />
           </span>
           <h3 className="mt-4 text-lg font-black text-slate-900">
             Todavía no hay órdenes de compra
@@ -571,8 +572,8 @@ export default function AdminOrders({ session }) {
         </div>
       ) : visibleOrders.length === 0 ? (
         <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-          <span className="text-4xl" aria-hidden="true">
-            🔎
+          <span aria-hidden="true">
+            <SearchIcon className="mx-auto h-10 w-10 text-slate-300" />
           </span>
           <h3 className="mt-3 text-base font-black text-slate-900">
             No encontramos pedidos

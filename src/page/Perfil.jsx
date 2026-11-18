@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
+import StoreFooter from '../components/StoreFooter.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
+import { AlertTriangle, Check, Receipt, TeddyBear } from '../components/icons.jsx'
 import { getSession, logoutUser } from '../services/authService.js'
 import {
   ORDER_STATUS_FLOW,
@@ -8,19 +10,20 @@ import {
   listCustomerOrders,
 } from '../services/orderService.js'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
-const dateFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateFormatter = new Intl.DateTimeFormat('es-PE', {
   day: '2-digit',
   month: 'short',
   year: 'numeric',
 })
 
-const dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateTimeFormatter = new Intl.DateTimeFormat('es-PE', {
   day: '2-digit',
   month: 'short',
   hour: '2-digit',
@@ -28,7 +31,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
 })
 
 function formatPrice(value) {
-  return priceFormatter.format(Math.round(Number(value) || 0))
+  return priceFormatter.format(Number(value) || 0)
 }
 
 function formatDate(value) {
@@ -180,9 +183,11 @@ function OrderTimeline({ order }) {
                 }`}
                 aria-current={current ? 'step' : undefined}
               >
-                {done || (current && step.key === 'entregado')
-                  ? '✓'
-                  : index + 1}
+                {done || (current && step.key === 'entregado') ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  index + 1
+                )}
               </span>
               <span
                 className={`mt-2 text-[11px] font-black leading-tight sm:text-xs ${
@@ -303,7 +308,7 @@ function OrderCard({ order, open, onToggle }) {
 
               {cancelled && (
                 <p className="mt-4 flex items-start gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-semibold text-rose-700">
-                  <span aria-hidden="true">⚠️</span>
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   Este pedido fue cancelado y no será despachado. Si tienes dudas,
                   contacta a la juguetería.
                 </p>
@@ -351,8 +356,8 @@ function OrderCard({ order, open, onToggle }) {
                       className="h-14 w-14 shrink-0 rounded-xl object-cover"
                     />
                   ) : (
-                    <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-violet-50 text-2xl">
-                      🧸
+                    <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-500">
+                      <TeddyBear className="h-6 w-6" />
                     </span>
                   )}
 
@@ -405,7 +410,7 @@ function OrderCard({ order, open, onToggle }) {
 
           <footer className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="text-[11px] text-slate-500">
-              Base gravable {formatPrice(order.totals.taxableBase)} · IVA{' '}
+              Base gravable {formatPrice(order.totals.taxableBase)} · IGV{' '}
               {formatPrice(order.totals.tax)}
             </div>
 
@@ -479,14 +484,14 @@ export default function Perfil() {
             <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <div className="flex items-center gap-4">
                 <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 text-2xl font-black text-white shadow-lg shadow-fuchsia-500/25">
-                  {session.email.slice(0, 1).toUpperCase()}
+                  {(session.displayName || session.email).slice(0, 1).toUpperCase()}
                 </span>
                 <div className="min-w-0">
                   <p className="text-[10px] font-black uppercase tracking-wider text-violet-600">
                     Cliente registrado
                   </p>
                   <h1 className="truncate text-xl font-black tracking-tight text-slate-900 sm:text-2xl">
-                    Mi perfil
+                    Hola, {session.displayName || 'cliente'}
                   </h1>
                   <p className="truncate text-sm font-semibold text-slate-500">
                     {session.email}
@@ -563,8 +568,8 @@ export default function Perfil() {
 
             {orders.length === 0 ? (
               <div className="mt-5 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
-                <span className="text-5xl" aria-hidden="true">
-                  🧾
+                <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-violet-50 text-violet-500" aria-hidden="true">
+                  <Receipt className="h-8 w-8" />
                 </span>
                 <h3 className="mt-4 text-lg font-black text-slate-900">
                   Todavía no tienes pedidos
@@ -603,9 +608,7 @@ export default function Perfil() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-        Mi Juguetería · Juguetes seguros para cada etapa
-      </footer>
+      <StoreFooter />
     </div>
   )
 }

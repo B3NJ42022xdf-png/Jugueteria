@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { PEXELS } from '../data/products.js'
+import { ChristmasTree, Sparkles } from './icons.jsx'
 
 /* ------------------------------------------------------------------ */
 /* Cuenta regresiva a Navidad                                          */
@@ -59,7 +61,7 @@ export function ChristmasCountdown({ className = '' }) {
       aria-label="Cuenta regresiva para Navidad"
     >
       <span className="mr-1 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-amber-200">
-        <span aria-hidden="true">🎄</span>
+        <ChristmasTree className="h-4 w-4" />
         {time?.isChristmasDay ? '¡Es Navidad!' : 'Faltan para Navidad'}
       </span>
 
@@ -84,44 +86,95 @@ export function ChristmasCountdown({ className = '' }) {
 /* Escena de Papá Noel con sus elfos                                   */
 /* ------------------------------------------------------------------ */
 
+const SCENE_PHOTOS = [
+  {
+    id: '1556679',
+    alt: 'Peluche de Papá Noel',
+    size: 'h-24 w-24 sm:h-28 sm:w-28',
+    ring: 'ring-red-200',
+    animation: 'animate-ho-ho',
+  },
+  {
+    id: '14646244',
+    alt: 'Duende navideño junto al árbol',
+    size: 'h-16 w-16 sm:h-20 sm:w-20',
+    ring: 'ring-emerald-200',
+    animation: 'animate-swing',
+  },
+  {
+    id: '19500352',
+    alt: 'Regalos de Navidad envueltos',
+    size: 'h-20 w-20 sm:h-24 sm:w-24',
+    ring: 'ring-amber-200',
+    animation: 'animate-ho-ho [animation-delay:0.6s]',
+  },
+  {
+    id: '13464196',
+    alt: 'Adorno de reno navideño',
+    size: 'h-16 w-16 sm:h-20 sm:w-20',
+    ring: 'ring-rose-200',
+    animation: 'animate-float',
+  },
+]
+
 export function SantaScene({ className = '', compact = false }) {
+  const photos = compact ? SCENE_PHOTOS.slice(0, 3) : SCENE_PHOTOS
+
   return (
     <div
       aria-hidden="true"
       className={`pointer-events-none relative select-none ${className}`}
     >
-      <div className="relative flex items-end justify-center gap-1 sm:gap-2">
-        <span className="absolute -top-8 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-2xl bg-white px-3 py-1 font-festive text-sm font-bold text-red-700 shadow-lg ring-2 ring-amber-300 sm:text-base">
+      <div className="relative flex items-end justify-center gap-2 sm:gap-3">
+        <span className="absolute -top-9 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-2xl bg-white px-3 py-1 font-festive text-sm font-bold text-red-700 shadow-lg ring-2 ring-amber-300 sm:text-base">
           ¡Ho, ho, ho!
           <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-white" />
         </span>
 
-        <span className="animate-ho-ho text-5xl drop-shadow-md sm:text-6xl">
-          🎅
-        </span>
-
-        <span className="animate-swing text-3xl drop-shadow-sm sm:text-4xl">
-          🧝
-        </span>
-        <span className="animate-ho-ho text-4xl drop-shadow-sm [animation-delay:0.6s] sm:text-5xl">
-          🎁
-        </span>
-        <span className="animate-swing text-3xl drop-shadow-sm [animation-delay:0.9s] sm:text-4xl">
-          🧝‍♀️
-        </span>
-
-        {!compact && (
-          <span className="animate-float text-4xl drop-shadow-sm sm:text-5xl">
-            🦌
+        {photos.map((photo) => (
+          <span
+            key={photo.id}
+            className={`block overflow-hidden rounded-full bg-white shadow-lg ring-4 ring-white ${photo.ring} ${photo.size} ${photo.animation}`}
+          >
+            <img
+              src={PEXELS(photo.id)}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width="160"
+              height="160"
+              className="h-full w-full object-cover"
+            />
           </span>
-        )}
+        ))}
       </div>
 
       {!compact && (
-        <div className="mt-2 flex items-center justify-center gap-3 text-2xl">
-          <span className="animate-twinkle">✨</span>
-          <span className="animate-float-slow text-xl">🛷</span>
-          <span className="animate-twinkle [animation-delay:0.5s]">✨</span>
+        <div className="mt-3 flex items-center justify-center gap-3">
+          <Sparkles className="h-5 w-5 animate-twinkle text-amber-300" />
+          <span className="block h-12 w-12 animate-float-slow overflow-hidden rounded-full bg-white shadow-md ring-2 ring-amber-200">
+            <img
+              src={PEXELS('35169339')}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width="96"
+              height="96"
+              className="h-full w-full object-cover"
+            />
+          </span>
+          <span className="block h-12 w-12 animate-sleigh overflow-hidden rounded-full bg-white shadow-md ring-2 ring-sky-200">
+            <img
+              src={PEXELS('11138010')}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              width="96"
+              height="96"
+              className="h-full w-full object-cover"
+            />
+          </span>
+          <Sparkles className="h-5 w-5 animate-twinkle text-amber-300 [animation-delay:0.5s]" />
         </div>
       )}
     </div>

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import FloatingToys from '../components/FloatingToys.jsx'
 import ToyConfetti from '../components/ToyConfetti.jsx'
+import { Check, ChristmasTree, Gift } from '../components/icons.jsx'
+import { PEXELS } from '../data/products.js'
 import {
   DuplicateEmailError,
   emailExists,
@@ -217,11 +219,13 @@ function Brand({ compact = false }) {
       aria-label="Mi Juguetería, ir al catálogo"
     >
       <span
-        className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-red-700 via-red-600 to-red-500 text-2xl shadow-lg shadow-red-900/30 ring-2 ring-amber-200 transition-transform duration-300 group-hover:-rotate-6"
+        className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-red-700 via-red-600 to-red-500 text-amber-100 shadow-lg shadow-red-900/30 ring-2 ring-amber-200 transition-transform duration-300 group-hover:-rotate-6"
         aria-hidden="true"
       >
-        🎄
-        <span className="absolute -right-1.5 -top-2 text-sm">🎅</span>
+        <ChristmasTree className="h-6 w-6" />
+        <span className="absolute -right-1.5 -top-2 grid h-5 w-5 place-items-center rounded-full bg-white text-red-600 shadow-sm ring-2 ring-amber-300">
+          <Gift className="h-3 w-3" />
+        </span>
       </span>
       <span className="min-w-0">
         <span className="block truncate font-festive text-xl font-bold tracking-wide text-red-800">
@@ -309,16 +313,27 @@ function PageShell({ children }) {
 
             <div className="grid grid-cols-3 gap-3">
               {[
-                { emoji: '🎅', label: 'Papá Noel' },
-                { emoji: '🧝', label: 'Elfos' },
-                { emoji: '🎁', label: 'Regalos' },
+                { photo: '1556679', label: 'Papá Noel' },
+                { photo: '14646244', label: 'Elfos' },
+                { photo: '19500352', label: 'Regalos' },
               ].map((toy, index) => (
                 <div
                   key={toy.label}
                   className={`min-w-0 animate-pop-in rounded-2xl border-2 border-amber-100 bg-white/80 p-4 text-center shadow-sm backdrop-blur stagger-${index + 3}`}
                 >
-                  <span className="block animate-float text-3xl" aria-hidden="true">
-                    {toy.emoji}
+                  <span
+                    className="mx-auto block h-12 w-12 animate-float overflow-hidden rounded-full bg-white shadow-sm ring-2 ring-amber-200"
+                    aria-hidden="true"
+                  >
+                    <img
+                      src={PEXELS(toy.photo)}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      width="96"
+                      height="96"
+                      className="h-full w-full object-cover"
+                    />
                   </span>
                   <span className="mt-2 block truncate text-xs font-extrabold text-slate-600">
                     {toy.label}
@@ -459,7 +474,7 @@ function PasswordChecklist({ id, password }) {
             className={`flex items-start gap-1.5 ${met ? 'font-semibold text-emerald-700' : 'text-slate-500'}`}
           >
             <span className="mt-px shrink-0" aria-hidden="true">
-              {met ? '✓' : '•'}
+              {met ? <Check className="h-3.5 w-3.5" /> : '•'}
             </span>
             <span className="min-w-0">
               {rule.label}
@@ -737,9 +752,9 @@ function Registro() {
               <CheckCircleIcon className="h-12 w-12" />
             </div>
 
-            <div className="mt-3 text-4xl" aria-hidden="true">
-              <span className="inline-block animate-wiggle">🎅</span>
-              <span className="ml-1 inline-block animate-wiggle [animation-delay:0.3s]">🎁</span>
+            <div className="mt-3 flex items-center justify-center gap-1 text-red-600" aria-hidden="true">
+              <ChristmasTree className="inline-block h-8 w-8 animate-wiggle" />
+              <Gift className="ml-1 inline-block h-8 w-8 animate-wiggle text-emerald-600 [animation-delay:0.3s]" />
             </div>
 
             <h1 className="mt-2 text-balance font-festive text-3xl font-bold tracking-wide text-red-800">
@@ -966,7 +981,10 @@ function Registro() {
                   Creando cuenta…
                 </>
               ) : (
-                '🎁 Crear mi cuenta navideña'
+                <>
+                  <Gift className="h-5 w-5" />
+                  Crear mi cuenta navideña
+                </>
               )}
             </button>
 

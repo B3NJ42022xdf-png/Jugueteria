@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import StoreFooter from '../components/StoreFooter.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
+import { TeddyBear } from '../components/icons.jsx'
 import { getSession } from '../services/authService.js'
 import {
   getOrder,
@@ -8,14 +10,15 @@ import {
   saveProductRating,
 } from '../services/orderService.js'
 
-const dateFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateFormatter = new Intl.DateTimeFormat('es-PE', {
   dateStyle: 'long',
 })
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
 function StarButton({ value, selected, onSelect }) {
@@ -106,8 +109,8 @@ export default function CalificarProducto() {
         <StoreHeader />
         <main className="grid flex-1 place-items-center px-4 py-16">
           <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <span className="text-5xl" aria-hidden="true">
-              🧸
+            <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-violet-50 text-violet-500" aria-hidden="true">
+              <TeddyBear className="h-8 w-8" />
             </span>
             <h1 className="mt-4 text-2xl font-black tracking-tight text-slate-900">
               Producto no encontrado
@@ -193,8 +196,8 @@ export default function CalificarProducto() {
                     className="h-20 w-20 shrink-0 rounded-2xl object-cover"
                   />
                 ) : (
-                  <span className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-amber-50 text-4xl">
-                    🧸
+                  <span className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl bg-amber-50 text-amber-500">
+                    <TeddyBear className="h-9 w-9" />
                   </span>
                 )}
 
@@ -344,9 +347,7 @@ export default function CalificarProducto() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-        Mi Juguetería · Juguetes seguros para cada etapa
-      </footer>
+      <StoreFooter />
     </div>
   )
 }

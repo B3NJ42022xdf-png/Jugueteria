@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import StoreFooter from '../components/StoreFooter.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
+import { Receipt, TeddyBear } from '../components/icons.jsx'
 import {
   downloadReceiptPdf,
   downloadReceiptXml,
@@ -8,7 +10,7 @@ import {
   getReceipt,
 } from '../services/receiptService.js'
 
-const dateFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateFormatter = new Intl.DateTimeFormat('es-PE', {
   dateStyle: 'long',
   timeStyle: 'short',
 })
@@ -46,6 +48,16 @@ function DownloadIcon({ className = 'h-4 w-4' }) {
       <path d="M12 3v12" />
       <path d="m7 11 5 5 5-5" />
       <path d="M4 20h16" />
+    </svg>
+  )
+}
+
+function PrintIcon({ className = 'h-4 w-4' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M6 9V3h12v6" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" rx="1" />
     </svg>
   )
 }
@@ -108,7 +120,7 @@ function ReceiptDocument({ receipt }) {
   return (
     <section
       aria-labelledby="comprobante-title"
-      className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
+      className="print-receipt overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
     >
       <div className="h-1.5 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-rose-400" />
 
@@ -120,8 +132,8 @@ function ReceiptDocument({ receipt }) {
         <div className="flex flex-col gap-5 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 text-xl shadow-md shadow-fuchsia-500/30">
-                🧸
+              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white shadow-md shadow-fuchsia-500/30">
+                <TeddyBear className="h-5 w-5" />
               </span>
               <div>
                 <p className="text-base font-black leading-tight text-slate-900">
@@ -245,6 +257,21 @@ function ReceiptDocument({ receipt }) {
                 {formatPrice(receipt.totals.subtotal)}
               </dd>
             </div>
+            {(receipt.totals.discount ?? 0) > 0 && (
+              <div className="flex items-center justify-between gap-3">
+                <dt className="flex items-center gap-1.5 font-semibold text-emerald-700">
+                  Descuento
+                  {receipt.totals.couponCode && (
+                    <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-emerald-700">
+                      {receipt.totals.couponCode}
+                    </span>
+                  )}
+                </dt>
+                <dd className="font-black tabular-nums text-emerald-600">
+                  -{formatPrice(receipt.totals.discount)}
+                </dd>
+              </div>
+            )}
             <div className="flex items-center justify-between gap-3">
               <dt className="text-slate-500">Envío</dt>
               <dd className="font-bold tabular-nums text-emerald-600">
@@ -260,7 +287,7 @@ function ReceiptDocument({ receipt }) {
               </dd>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <dt className="text-slate-500">IVA ({taxPercent} %)</dt>
+              <dt className="text-slate-500">IGV ({taxPercent} %)</dt>
               <dd className="font-bold tabular-nums text-slate-800">
                 {formatPrice(receipt.totals.tax)}
               </dd>
@@ -275,7 +302,7 @@ function ReceiptDocument({ receipt }) {
         </div>
 
         <p className="mt-3 text-right text-[10px] text-slate-400">
-          Precios en {receipt.currency}. El IVA ya está incluido en los precios
+          Precios en {receipt.currency}. El IGV ya está incluido en los precios
           unitarios.
         </p>
 
@@ -305,8 +332,8 @@ export default function OrdenDetalle() {
         <StoreHeader />
         <main className="grid flex-1 place-items-center px-4 py-16">
           <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <span className="text-5xl" aria-hidden="true">
-              🧾
+            <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-violet-50 text-violet-600" aria-hidden="true">
+              <Receipt className="h-8 w-8" />
             </span>
             <h1 className="mt-4 text-2xl font-black tracking-tight text-slate-900">
               Comprobante no encontrado
@@ -397,8 +424,17 @@ export default function OrdenDetalle() {
 
                 <button
                   type="button"
+                  onClick={() => window.print()}
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-red-700 px-4 py-3 text-sm font-black text-white shadow-lg shadow-red-900/20 transition hover:-translate-y-0.5 hover:bg-red-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/60"
+                >
+                  <PrintIcon />
+                  Imprimir comprobante
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => downloadReceiptPdf(receipt)}
-                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 px-4 py-3 text-sm font-black text-white shadow-lg shadow-fuchsia-500/25 transition hover:from-violet-700 hover:to-fuchsia-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-300"
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-violet-200"
                 >
                   <DownloadIcon />
                   Descargar PDF
@@ -523,9 +559,7 @@ export default function OrdenDetalle() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-        Mi Juguetería · Juguetes seguros para cada etapa
-      </footer>
+      <StoreFooter />
     </div>
   )
 }

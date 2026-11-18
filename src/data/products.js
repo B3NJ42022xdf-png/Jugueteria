@@ -7,40 +7,24 @@
  * producto, el carrito y el panel de administración siguen funcionando sin
  * cambios mientras el catálogo usa las propiedades nuevas.
  *
- * Las imágenes son fotografías reales de juguetes alojadas en Unsplash.
- * El sufijo `?auto=format&fit=crop&w=800&q=80` las entrega optimizadas.
+ * Las imágenes son fotografías reales de juguetes y motivos navideños alojadas
+ * en Unsplash y Pexels. Los helpers `UNSPLASH` y `PEXELS` aplican recorte y
+ * compresión para que todas las tarjetas compartan proporción y peso similar.
  */
-
-export function createToyImage(emoji, from, to) {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
-      <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="${from}" />
-          <stop offset="1" stop-color="${to}" />
-        </linearGradient>
-      </defs>
-      <rect width="400" height="300" fill="url(#bg)" />
-      <circle cx="340" cy="52" r="72" fill="#ffffff" opacity="0.16" />
-      <circle cx="58" cy="262" r="96" fill="#ffffff" opacity="0.12" />
-      <path d="M0 300 L400 205 L400 300 Z" fill="#ffffff" opacity="0.1" />
-      <text x="200" y="196" font-size="128" text-anchor="middle" dominant-baseline="middle">${emoji}</text>
-    </svg>
-  `
-
-  // El servicio de imágenes solo acepta data URI en base64 (ver sanitizeUrl),
-  // por eso codificamos el SVG en lugar de usar un URI con caracteres escapados.
-  const bytes = new TextEncoder().encode(svg)
-  let binary = ''
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte)
-  })
-
-  return `data:image/svg+xml;base64,${btoa(binary)}`
-}
 
 const UNSPLASH = (id) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=80`
+
+/**
+ * Fotografías de Pexels recortadas a un cuadrado de 800 px. El recorte
+ * `fit=crop` mantiene la misma proporción en todas las tarjetas del catálogo,
+ * así la cuadrícula no se deforma aunque las fotos originales sean verticales.
+ */
+export const PEXELS = (id) =>
+  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800&h=800&fit=crop`
+
+/** Imagen neutra usada cuando un juguete creado por el admin no tiene foto. */
+export const DEFAULT_PRODUCT_IMAGE = PEXELS('4887162')
 
 /**
  * Descuentos de temporada (porcentaje). Se aplican sobre el precio actual y
@@ -72,7 +56,7 @@ export const PRODUCTS = [
     name: 'Castillo Medieval LEGO',
     category: 'Legos',
     brand: 'LEGO',
-    price: 189900,
+    price: 189.90,
     rating: 4.8,
     reviewsCount: 1240,
     ageRange: '6-8',
@@ -86,7 +70,7 @@ export const PRODUCTS = [
     name: 'Caja de Bloques Creativos',
     category: 'Legos',
     brand: 'LEGO',
-    price: 89900,
+    price: 89.90,
     rating: 4.6,
     reviewsCount: 860,
     ageRange: '3-5',
@@ -100,7 +84,7 @@ export const PRODUCTS = [
     name: 'Monopolio Junior',
     category: 'Juegos de Mesa',
     brand: 'Hasbro',
-    price: 79900,
+    price: 79.90,
     rating: 4.7,
     reviewsCount: 1900,
     ageRange: '6-8',
@@ -114,7 +98,7 @@ export const PRODUCTS = [
     name: 'Oso de Peluche Gigante',
     category: 'Peluches',
     brand: 'Mattel',
-    price: 99900,
+    price: 99.90,
     rating: 4.9,
     reviewsCount: 2100,
     ageRange: '0-2',
@@ -128,7 +112,7 @@ export const PRODUCTS = [
     name: 'Peluche Suave para Dormir',
     category: 'Peluches',
     brand: 'Fisher-Price',
-    price: 49900,
+    price: 49.90,
     rating: 4.4,
     reviewsCount: 380,
     ageRange: '0-2',
@@ -142,7 +126,7 @@ export const PRODUCTS = [
     name: 'Auto de Carreras Turbo',
     category: 'Vehículos',
     brand: 'Hot Wheels',
-    price: 39900,
+    price: 39.90,
     rating: 4.6,
     reviewsCount: 1500,
     ageRange: '6-8',
@@ -156,7 +140,7 @@ export const PRODUCTS = [
     name: 'Tren de Carga de Madera',
     category: 'Vehículos',
     brand: 'Brio',
-    price: 119900,
+    price: 119.90,
     rating: 4.7,
     reviewsCount: 620,
     ageRange: '3-5',
@@ -169,7 +153,7 @@ export const PRODUCTS = [
     name: 'Muñeca Princesa Ariana',
     category: 'Muñecos',
     brand: 'Barbie',
-    price: 74900,
+    price: 74.90,
     rating: 4.5,
     reviewsCount: 540,
     ageRange: '3-5',
@@ -183,7 +167,7 @@ export const PRODUCTS = [
     name: 'Set de Figuras de Aventura',
     category: 'Muñecos',
     brand: 'Playmobil',
-    price: 129900,
+    price: 129.90,
     rating: 4.7,
     reviewsCount: 430,
     ageRange: '3-5',
@@ -196,7 +180,7 @@ export const PRODUCTS = [
     name: 'Torre de Anillos Arcoíris',
     category: 'Bebés',
     brand: 'Fisher-Price',
-    price: 29900,
+    price: 29.90,
     rating: 4.7,
     reviewsCount: 980,
     ageRange: '0-2',
@@ -210,7 +194,7 @@ export const PRODUCTS = [
     name: 'Patineta Espacial',
     category: 'Aire Libre',
     brand: 'Micro',
-    price: 109900,
+    price: 109.90,
     rating: 4.4,
     reviewsCount: 520,
     ageRange: '6-8',
@@ -224,7 +208,7 @@ export const PRODUCTS = [
     name: 'Kit de Ciencias Volcán',
     category: 'Científicos',
     brand: 'Hasbro',
-    price: 84900,
+    price: 84.90,
     rating: 4.5,
     reviewsCount: 275,
     ageRange: '9-12',
@@ -242,12 +226,12 @@ export const PRODUCTS = [
     name: 'Árbol de Navidad con Luces',
     category: 'Navidad',
     brand: 'Navidad Mágica',
-    price: 89900,
+    price: 89.90,
     rating: 4.8,
     reviewsCount: 640,
     ageRange: '3-5',
     badge: 'MÁS VENDEDOR',
-    imageUrl: createToyImage('🎄', '#14532d', '#22c55e'),
+    imageUrl: PEXELS('35139323'),
     tags: ['navidad', 'diciembre', 'árbol', 'luces', 'decoración', 'fiesta'],
     popularity: 97,
   },
@@ -256,12 +240,12 @@ export const PRODUCTS = [
     name: 'Papá Noel de Peluche Gigante',
     category: 'Navidad',
     brand: 'Navidad Mágica',
-    price: 129900,
+    price: 129.90,
     rating: 4.9,
     reviewsCount: 890,
     ageRange: '0-2',
     badge: 'MÁS VENDEDOR',
-    imageUrl: createToyImage('🎅', '#b91c1c', '#f87171'),
+    imageUrl: PEXELS('1556679'),
     tags: ['navidad', 'diciembre', 'papá noel', 'santa', 'peluche', 'regalo'],
     popularity: 99,
   },
@@ -270,11 +254,11 @@ export const PRODUCTS = [
     name: 'Set de Elfos Ayudantes',
     category: 'Navidad',
     brand: 'Navidad Mágica',
-    price: 74900,
+    price: 74.90,
     rating: 4.7,
     reviewsCount: 320,
     ageRange: '3-5',
-    imageUrl: createToyImage('🧝', '#15803d', '#86efac'),
+    imageUrl: PEXELS('14646244'),
     tags: ['navidad', 'diciembre', 'elfos', 'duendes', 'taller', 'regalo'],
     popularity: 91,
   },
@@ -283,11 +267,11 @@ export const PRODUCTS = [
     name: 'Trineo de Madera Deslizador',
     category: 'Navidad',
     brand: 'Bosque Nevado',
-    price: 159900,
+    price: 159.90,
     rating: 4.6,
     reviewsCount: 210,
     ageRange: '6-8',
-    imageUrl: createToyImage('🛷', '#1e3a8a', '#93c5fd'),
+    imageUrl: PEXELS('11138010'),
     tags: ['navidad', 'diciembre', 'trineo', 'nieve', 'madera', 'aire libre'],
     popularity: 78,
   },
@@ -296,12 +280,12 @@ export const PRODUCTS = [
     name: 'Reno Luminoso Cantante',
     category: 'Navidad',
     brand: 'Navidad Mágica',
-    price: 99900,
+    price: 99.90,
     rating: 4.5,
     reviewsCount: 410,
     ageRange: '3-5',
     badge: 'NUEVO',
-    imageUrl: createToyImage('🦌', '#7c2d12', '#fbbf24'),
+    imageUrl: PEXELS('13464146'),
     tags: ['navidad', 'diciembre', 'reno', 'música', 'luces', 'rodolfo'],
     popularity: 84,
   },
@@ -310,12 +294,12 @@ export const PRODUCTS = [
     name: 'Caja de Regalos Sorpresa',
     category: 'Navidad',
     brand: 'Sorpresa Total',
-    price: 39900,
+    price: 39.90,
     rating: 4.4,
     reviewsCount: 760,
     ageRange: '6-8',
     badge: 'OFERTA',
-    imageUrl: createToyImage('🎁', '#be123c', '#fb7185'),
+    imageUrl: PEXELS('19500352'),
     tags: ['navidad', 'diciembre', 'regalo', 'sorpresa', 'caja', 'sorteo'],
     popularity: 88,
   },
@@ -324,11 +308,11 @@ export const PRODUCTS = [
     name: 'Pack de Calcetines Navideños',
     category: 'Navidad',
     brand: 'Invierno Feliz',
-    price: 24900,
+    price: 24.90,
     rating: 4.3,
     reviewsCount: 290,
     ageRange: '3-5',
-    imageUrl: createToyImage('🧦', '#b91c1c', '#fca5a5'),
+    imageUrl: PEXELS('39833057'),
     tags: ['navidad', 'diciembre', 'calcetines', 'invierno', 'regalo', 'chimenea'],
     popularity: 66,
   },
@@ -337,11 +321,11 @@ export const PRODUCTS = [
     name: 'Corona de Adviento con Velas',
     category: 'Navidad',
     brand: 'Bosque Nevado',
-    price: 64900,
+    price: 64.90,
     rating: 4.7,
     reviewsCount: 180,
     ageRange: '9-12',
-    imageUrl: createToyImage('🕯️', '#14532d', '#facc15'),
+    imageUrl: PEXELS('29917906'),
     tags: ['navidad', 'diciembre', 'adviento', 'velas', 'corona', 'tradición'],
     popularity: 74,
   },
@@ -350,11 +334,11 @@ export const PRODUCTS = [
     name: 'Juego de Galletas de Jengibre',
     category: 'Navidad',
     brand: 'Cocina Traviesa',
-    price: 45900,
+    price: 45.90,
     rating: 4.6,
     reviewsCount: 340,
     ageRange: '3-5',
-    imageUrl: createToyImage('🍪', '#92400e', '#fcd34d'),
+    imageUrl: PEXELS('5981138'),
     tags: ['navidad', 'diciembre', 'galletas', 'jengibre', 'cocina', 'juego'],
     popularity: 81,
   },
@@ -363,12 +347,12 @@ export const PRODUCTS = [
     name: 'Casa de Jengibre para Armar',
     category: 'Navidad',
     brand: 'Cocina Traviesa',
-    price: 54900,
+    price: 54.90,
     rating: 4.5,
     reviewsCount: 260,
     ageRange: '6-8',
     badge: 'NUEVO',
-    imageUrl: createToyImage('🏠', '#b45309', '#fde68a'),
+    imageUrl: PEXELS('35104172'),
     tags: ['navidad', 'diciembre', 'casa', 'jengibre', 'manualidades', 'dulce'],
     popularity: 80,
   },
@@ -377,11 +361,11 @@ export const PRODUCTS = [
     name: 'Muñeco de Nieve de Peluche',
     category: 'Navidad',
     brand: 'Invierno Feliz',
-    price: 59900,
+    price: 59.90,
     rating: 4.8,
     reviewsCount: 520,
     ageRange: '0-2',
-    imageUrl: createToyImage('⛄', '#0ea5e9', '#e0f2fe'),
+    imageUrl: PEXELS('35074032'),
     tags: ['navidad', 'diciembre', 'muñeco de nieve', 'peluche', 'invierno', 'suave'],
     popularity: 90,
   },
@@ -390,12 +374,12 @@ export const PRODUCTS = [
     name: 'Estrella Navideña Luminosa',
     category: 'Navidad',
     brand: 'Navidad Mágica',
-    price: 34900,
+    price: 34.90,
     rating: 4.7,
     reviewsCount: 450,
     ageRange: '6-8',
     badge: 'TOP VENTAS',
-    imageUrl: createToyImage('⭐', '#b45309', '#fde047'),
+    imageUrl: PEXELS('35169339'),
     tags: ['navidad', 'diciembre', 'estrella', 'luces', 'decoración', 'árbol'],
     popularity: 93,
   },
@@ -404,12 +388,12 @@ export const PRODUCTS = [
     name: 'Tren Navideño Eléctrico',
     category: 'Navidad',
     brand: 'Rieles del Polo Norte',
-    price: 189900,
+    price: 189.90,
     rating: 4.9,
     reviewsCount: 380,
     ageRange: '6-8',
     badge: 'EDICIÓN NAVIDAD',
-    imageUrl: createToyImage('🚂', '#14532d', '#d97706'),
+    imageUrl: PEXELS('1119234'),
     tags: ['navidad', 'diciembre', 'tren', 'eléctrico', 'vías', 'polo norte'],
     popularity: 95,
   },
@@ -418,12 +402,12 @@ export const PRODUCTS = [
     name: 'Duende Travieso Interactivo',
     category: 'Navidad',
     brand: 'Taller de Santa',
-    price: 84900,
+    price: 84.90,
     rating: 4.6,
     reviewsCount: 310,
     ageRange: '3-5',
     badge: 'NUEVO',
-    imageUrl: createToyImage('🧝‍♂️', '#b91c1c', '#4ade80'),
+    imageUrl: PEXELS('14646246'),
     tags: ['navidad', 'diciembre', 'duende', 'elfo', 'interactivo', 'travesuras'],
     popularity: 87,
   },
@@ -432,11 +416,11 @@ export const PRODUCTS = [
     name: 'Bolsa Mágica de Regalos',
     category: 'Navidad',
     brand: 'Taller de Santa',
-    price: 29900,
+    price: 29.90,
     rating: 4.2,
     reviewsCount: 150,
     ageRange: '3-5',
-    imageUrl: createToyImage('🛍️', '#7f1d1d', '#f59e0b'),
+    imageUrl: PEXELS('1474957'),
     tags: ['navidad', 'diciembre', 'bolsa', 'regalos', 'magia', 'saco'],
     popularity: 62,
   },
@@ -445,11 +429,11 @@ export const PRODUCTS = [
     name: 'Campanas Navideñas Musicales',
     category: 'Navidad',
     brand: 'Coro del Invierno',
-    price: 42900,
+    price: 42.90,
     rating: 4.4,
     reviewsCount: 230,
     ageRange: '3-5',
-    imageUrl: createToyImage('🔔', '#b45309', '#fde047'),
+    imageUrl: PEXELS('35249462'),
     tags: ['navidad', 'diciembre', 'campanas', 'música', 'villancicos', 'sonido'],
     popularity: 71,
   },
@@ -458,11 +442,11 @@ export const PRODUCTS = [
     name: 'Patineta de Nieve Nórdica',
     category: 'Navidad',
     brand: 'Bosque Nevado',
-    price: 139900,
+    price: 139.90,
     rating: 4.5,
     reviewsCount: 190,
     ageRange: '9-12',
-    imageUrl: createToyImage('🛹', '#0f766e', '#99f6e4'),
+    imageUrl: PEXELS('30417377'),
     tags: ['navidad', 'diciembre', 'nieve', 'patineta', 'invierno', 'aire libre'],
     popularity: 73,
   },
@@ -471,12 +455,12 @@ export const PRODUCTS = [
     name: 'Kit de Cartas para Papá Noel',
     category: 'Navidad',
     brand: 'Taller de Santa',
-    price: 19900,
+    price: 19.90,
     rating: 4.8,
     reviewsCount: 680,
     ageRange: '3-5',
     badge: 'OFERTA',
-    imageUrl: createToyImage('✉️', '#b91c1c', '#fef3c7'),
+    imageUrl: PEXELS('5723950'),
     tags: ['navidad', 'diciembre', 'cartas', 'papá noel', 'escribir', 'deseos'],
     popularity: 89,
   },
@@ -485,11 +469,11 @@ export const PRODUCTS = [
     name: 'Pesebre de Madera Artesanal',
     category: 'Navidad',
     brand: 'Bosque Nevado',
-    price: 119900,
+    price: 119.90,
     rating: 4.7,
     reviewsCount: 140,
     ageRange: '6-8',
-    imageUrl: createToyImage('🐑', '#78350f', '#fcd34d'),
+    imageUrl: PEXELS('29723725'),
     tags: ['navidad', 'diciembre', 'pesebre', 'belén', 'madera', 'tradición'],
     popularity: 69,
   },
@@ -498,11 +482,11 @@ export const PRODUCTS = [
     name: 'Cascada de Luces LED',
     category: 'Navidad',
     brand: 'Navidad Mágica',
-    price: 69900,
+    price: 69.90,
     rating: 4.6,
     reviewsCount: 570,
     ageRange: '9-12',
-    imageUrl: createToyImage('✨', '#14532d', '#fde047'),
+    imageUrl: PEXELS('35239767'),
     tags: ['navidad', 'diciembre', 'luces', 'led', 'decoración', 'cascada'],
     popularity: 86,
   },
@@ -510,7 +494,7 @@ export const PRODUCTS = [
   const discount = SEASONAL_DISCOUNTS[product.id] ?? 0
   const oldPrice =
     discount > 0
-      ? Math.ceil(product.price / (1 - discount / 100) / 100) * 100
+      ? Math.ceil((product.price / (1 - discount / 100)) * 100) / 100
       : null
 
   return {
@@ -541,6 +525,6 @@ export const AGE_GROUPS = [
 ]
 
 export const PRICE_MIN = 0
-export const PRICE_STEP = 5000
+export const PRICE_STEP = 5
 export const PRICE_MAX =
-  Math.ceil(Math.max(...PRODUCTS.map((product) => product.price)) / 10000) * 10000
+  Math.ceil(Math.max(...PRODUCTS.map((product) => product.price)) / 10) * 10

@@ -18,6 +18,7 @@ import {
 } from '../lib/security.js'
 
 const RATINGS_STORAGE_KEY = 'jugueteria.ratings.v1'
+const PUBLIC_REVIEWS_STORAGE_KEY = 'jugueteria.publicReviews.v1'
 
 const AUTHOR_COLORS = [
   'bg-violet-100 text-violet-700',
@@ -28,7 +29,7 @@ const AUTHOR_COLORS = [
   'bg-fuchsia-100 text-fuchsia-700',
 ]
 
-const reviewDateFormatter = new Intl.DateTimeFormat('es-CO', {
+const reviewDateFormatter = new Intl.DateTimeFormat('es-PE', {
   day: '2-digit',
   month: 'long',
   year: 'numeric',
@@ -58,10 +59,39 @@ function writeArray(value) {
   safeSetItem(RATINGS_STORAGE_KEY, value)
 }
 
-// Otra pestaña puede moderar una opinión: invalidamos la caché en memoria.
+/* Opiniones libres escritas desde la ficha rápida del catálogo. Se guardan
+ * aparte de las compras verificadas para no mezclar su origen. */
+let publicReviewsCache = null
+
+function readPublicArray() {
+  if (publicReviewsCache) return publicReviewsCache
+
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(PUBLIC_REVIEWS_STORAGE_KEY) ?? '[]',
+    )
+    publicReviewsCache = Array.isArray(parsed) ? parsed : []
+    return publicReviewsCache
+  } catch {
+    return []
+  }
+}
+
+function writePublicArray(value) {
+  publicReviewsCache = value
+  safeSetItem(PUBLIC_REVIEWS_STORAGE_KEY, value)
+}
+
+// Otra pestaña puede moderar o publicar una opinión: invalidamos las cachés.
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (event) => {
-    if (event.key === RATINGS_STORAGE_KEY) reviewsCache = null
+    if (
+      event.key === RATINGS_STORAGE_KEY ||
+      event.key === PUBLIC_REVIEWS_STORAGE_KEY
+    ) {
+      reviewsCache = null
+      publicReviewsCache = null
+    }
   })
 }
 
@@ -118,6 +148,14 @@ export function listProductReviews(productId, { includeHidden = false } = {}) {
         rating.productId === productId &&
         (includeHidden || rating.hidden !== true),
     )
+    .map(normalizeReview)
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+}
+
+/** Opiniones libres publicadas desde la ficha rápida del catálogo. */
+export function listPublicReviews(productId) {
+  return readPublicArray()
+    .filter((review) => review.productId === productId)
     .map(normalizeReview)
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
 }
@@ -209,6 +247,62 @@ export function saveReview({
       ? reviews.map((item) => (item.id === existing.id ? review : item))
       : [...reviews, review],
   )
+  notifyCatalogChanged()
+
+  return review
+}
+
+/**
+ * Opinión escrita desde la ficha del producto.
+ *
+ * A diferencia de `saveReview`, no exige un pedido entregado: es una opinión
+ * de la comunidad para la demostración interactiva. Se sanea igual que las
+ * verificadas y se publica de inmediato en la lista del producto.
+ */
+export function savePublicReview({
+  productId,
+  productName = '',
+  customerName = '',
+  stars,
+  comment = '',
+}) {
+  const cleanProductId = sanitizePlainText(productId, { max: 64 })
+
+  if (!cleanProductId) {
+    throw new Error('No pudimos identificar el juguete que quieres calificar.')
+  }
+
+  const value = Math.round(Number(stars))
+
+  if (!Number.isFinite(value) || value < 1 || value > 5) {
+    throw new Error('Selecciona una calificación de 1 a 5 estrellas.')
+  }
+
+  const cleanComment = sanitizePlainText(comment, {
+    max: 500,
+    allowNewlines: true,
+  })
+
+  if (cleanComment.length < 5) {
+    throw new Error('Escribe un comentario de al menos 5 caracteres.')
+  }
+
+  const now = new Date().toISOString()
+  const review = normalizeReview({
+    id: crypto.randomUUID(),
+    receiptId: 'public-web',
+    orderNumber: '',
+    productId: cleanProductId,
+    productName,
+    customerName,
+    stars: value,
+    comment: cleanComment,
+    hidden: false,
+    createdAt: now,
+    updatedAt: now,
+  })
+
+  writePublicArray([...readPublicArray(), review])
   notifyCatalogChanged()
 
   return review

@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import CouponBox from '../components/CouponBox.jsx'
+import StoreFooter from '../components/StoreFooter.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
 import { useCart } from '../context/cartContext.js'
-import {
-  calculateShipping,
-  FREE_SHIPPING_FROM,
-} from '../lib/cartTotals.js'
+import { FREE_SHIPPING_FROM } from '../lib/cartTotals.js'
 import {
   InsufficientStockError,
   validateCartStock,
 } from '../services/storeService.js'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
 function formatPrice(value) {
@@ -203,6 +203,11 @@ export default function Carrito() {
     items,
     itemCount,
     subtotal,
+    coupon,
+    discount,
+    shipping,
+    total,
+    savings,
     changeQuantity,
     removeItem,
   } = useCart()
@@ -265,9 +270,6 @@ export default function Carrito() {
   const stockAlerts = items
     .map((item) => ({ item, info: stockInfo[item.id] }))
     .filter(({ info }) => info && (info.changed || info.insufficient))
-
-  const shipping = calculateShipping(subtotal, items.length)
-  const total = subtotal + shipping
 
   async function handleQuantity(item, quantity) {
     if (quantity < 1 || quantity === item.quantity || pendingId === item.id) return
@@ -569,6 +571,8 @@ export default function Carrito() {
                     Resumen de compra
                   </h2>
 
+                  <CouponBox className="mt-4" />
+
                   <dl className="mt-4 space-y-2.5 text-sm">
                     <div className="flex items-center justify-between gap-3">
                       <dt className="text-slate-500">Artículos</dt>
@@ -578,6 +582,21 @@ export default function Carrito() {
                       <dt className="text-slate-500">Subtotal</dt>
                       <dd className="font-bold text-slate-800">{formatPrice(subtotal)}</dd>
                     </div>
+                    {discount > 0 && (
+                      <div className="flex items-center justify-between gap-3">
+                        <dt className="flex items-center gap-1.5 font-semibold text-emerald-700">
+                          Descuento
+                          {coupon && (
+                            <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-emerald-700">
+                              {coupon.code}
+                            </span>
+                          )}
+                        </dt>
+                        <dd className="font-black text-emerald-600">
+                          -{formatPrice(discount)}
+                        </dd>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between gap-3">
                       <dt className="flex items-center gap-1.5 text-slate-500">
                         <TruckIcon className="h-4 w-4" />
@@ -598,6 +617,12 @@ export default function Carrito() {
                   {subtotal > 0 && subtotal < FREE_SHIPPING_FROM && (
                     <p className="mt-3 rounded-xl bg-violet-50 px-3 py-2 text-[11px] font-semibold text-violet-700">
                       Te faltan {formatPrice(FREE_SHIPPING_FROM - subtotal)} para el envío gratis.
+                    </p>
+                  )}
+
+                  {savings > 0 && (
+                    <p className="mt-2 rounded-xl bg-emerald-50 px-3 py-2 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-100">
+                      Estás ahorrando {formatPrice(savings)} con tu cupón.
                     </p>
                   )}
 
@@ -623,9 +648,7 @@ export default function Carrito() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-        Mi Juguetería · Juguetes seguros para cada etapa
-      </footer>
+      <StoreFooter />
     </div>
   )
 }

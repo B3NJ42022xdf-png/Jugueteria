@@ -14,13 +14,14 @@ import {
   createLocalBackup,
   downloadBackup,
 } from '../services/backupService.js'
+import { Package, Recycle, Scale, Wrench } from './icons.jsx'
 
-const dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateTimeFormatter = new Intl.DateTimeFormat('es-PE', {
   dateStyle: 'medium',
   timeStyle: 'short',
 })
 
-const windowFormatter = new Intl.DateTimeFormat('es-CO', {
+const windowFormatter = new Intl.DateTimeFormat('es-PE', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
@@ -46,28 +47,28 @@ const DURATION_OPTIONS = [
 
 const INFRASTRUCTURE = [
   {
-    icon: '♻️',
+    icon: Recycle,
     title: 'PM2 · autoreinicio',
     file: 'deploy/ecosystem.config.cjs',
     detail:
       '2 instancias en clúster, autorestart con backoff exponencial, máximo de reinicios y apagado ordenado.',
   },
   {
-    icon: '⚖️',
+    icon: Scale,
     title: 'Nginx · balanceador',
     file: 'deploy/nginx.conf',
     detail:
       'Upstream con max_fails y fail_timeout, reintento en otra réplica y página 503 de mantenimiento.',
   },
   {
-    icon: '🐳',
+    icon: Package,
     title: 'Docker · alta disponibilidad',
     file: 'deploy/docker-compose.yml',
     detail:
       'Dos réplicas con restart: always y healthcheck; Nginx solo arranca cuando ambas están sanas.',
   },
   {
-    icon: '🛠️',
+    icon: Wrench,
     title: 'systemd · watchdog',
     file: 'deploy/systemd/jugueteria.service',
     detail:
@@ -896,8 +897,8 @@ export default function AdminAvailability() {
                 key={item.file}
                 className="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2"
               >
-                <span className="text-base" aria-hidden="true">
-                  {item.icon}
+                <span className="text-slate-500" aria-hidden="true">
+                  <item.icon className="h-4 w-4" />
                 </span>
                 <div className="min-w-0">
                   <p className="text-[11px] font-black text-slate-800">

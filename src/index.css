@@ -448,6 +448,32 @@
   }
 }
 
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35) rotate(-6deg);
+  }
+  70% {
+    transform: scale(0.92) rotate(3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes bannerDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer utilities {
   .animate-float {
     animation: toyFloat 5s ease-in-out infinite;
@@ -791,6 +817,14 @@
     animation-fill-mode: forwards;
   }
 
+  .animate-heart-pop {
+    animation: heartPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-banner-drop {
+    animation: bannerDrop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   /* Texto del banner con sombra para garantizar contraste sobre el degradado. */
   .christmas-banner-copy {
     text-shadow:
@@ -854,8 +888,14 @@
     animation: none !important;
   }
 
-  .print-receipt img {
+  .print-receipt img,
+  .print-receipt svg {
     max-width: 100% !important;
+  }
+
+  .print-receipt svg {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .print-receipt table {

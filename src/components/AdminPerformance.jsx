@@ -8,7 +8,7 @@ import {
   runPerformanceBenchmark,
 } from '../services/performanceService.js'
 
-const dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateTimeFormatter = new Intl.DateTimeFormat('es-PE', {
   dateStyle: 'medium',
   timeStyle: 'short',
 })

@@ -1,22 +1,26 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import StoreFooter from '../components/StoreFooter.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
+import { Puzzle, Star } from '../components/icons.jsx'
 import { useCart } from '../context/cartContext.js'
 import { getProductDetail, getProductReviews } from '../data/productDetails.js'
 import { CART_TOAST_EVENT } from '../lib/cartEvents.js'
+import { FREE_SHIPPING_FROM } from '../lib/cartTotals.js'
 import { getProductById } from '../services/productService.js'
 import {
   InsufficientStockError,
   checkStock,
 } from '../services/storeService.js'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
-const numberFormatter = new Intl.NumberFormat('es-CO')
+const numberFormatter = new Intl.NumberFormat('es-PE')
 
 function formatPrice(value) {
   return priceFormatter.format(value)
@@ -269,7 +273,7 @@ function ProductoDetalleContent({ id }) {
   const maxQuantity = Math.max(1, stock ?? 1)
   const selectedQuantity = Math.min(quantity, maxQuantity)
   const lastUpdate = updatedAt
-    ? new Date(updatedAt).toLocaleTimeString('es-CO', {
+    ? new Date(updatedAt).toLocaleTimeString('es-PE', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
@@ -350,8 +354,8 @@ function ProductoDetalleContent({ id }) {
         <StoreHeader />
         <main className="grid flex-1 place-items-center px-4 py-16">
           <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <span className="text-5xl" aria-hidden="true">
-              🧩
+            <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-violet-50 text-violet-500" aria-hidden="true">
+              <Puzzle className="h-8 w-8" />
             </span>
             <h1 className="mt-4 text-2xl font-black tracking-tight text-slate-900">
               Producto no encontrado
@@ -508,7 +512,7 @@ function ProductoDetalleContent({ id }) {
                 <p className="text-4xl font-black tracking-tight text-slate-900">
                   {formatPrice(product.price)}
                 </p>
-                <p className="pb-1 text-xs text-slate-500">IVA incluido</p>
+                <p className="pb-1 text-xs text-slate-500">IGV incluido</p>
               </div>
 
               <div className={`mt-4 rounded-2xl border p-4 ${status.badge}`}>
@@ -625,7 +629,7 @@ function ProductoDetalleContent({ id }) {
               <div className="mt-5 grid gap-3 text-xs text-slate-600 sm:grid-cols-3">
                 <div className="flex items-center gap-2 rounded-xl bg-white p-3 shadow-sm">
                   <TruckIcon className="h-5 w-5 shrink-0 text-violet-600" />
-                  Envío gratis desde {formatPrice(150000)}
+                  Envío gratis desde {formatPrice(FREE_SHIPPING_FROM)}
                 </div>
                 <div className="flex items-center gap-2 rounded-xl bg-white p-3 shadow-sm">
                   <RefreshIcon className="h-5 w-5 shrink-0 text-violet-600" />
@@ -733,7 +737,9 @@ function ProductoDetalleContent({ id }) {
                   Comentarios y puntuaciones
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Opiniones agregadas de clientes que ya compraron este juguete.
+                  Opiniones de clientes que ya compraron este juguete
+                  {reviews.communityCount > 0 &&
+                    ' y valoraciones de la comunidad'}.
                   {reviews.realCount > 0 && (
                     <span className="font-semibold text-emerald-700">
                       {' '}
@@ -787,8 +793,8 @@ function ProductoDetalleContent({ id }) {
               <div>
                 {reviews.items.length === 0 && (
                   <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center">
-                    <span className="text-4xl" aria-hidden="true">
-                      ⭐
+                    <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-50 text-amber-500" aria-hidden="true">
+                      <Star className="h-7 w-7" />
                     </span>
                     <p className="mt-3 text-sm font-bold text-slate-700">
                       Este juguete aún no tiene opiniones publicadas.
@@ -817,12 +823,16 @@ function ProductoDetalleContent({ id }) {
                         <div>
                           <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-800">
                             {review.author}
-                            {review.verified && (
+                            {review.verified ? (
                               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                                 <CheckIcon className="h-3 w-3" />
                                 Compra verificada
                               </span>
-                            )}
+                            ) : review.community ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-bold text-sky-700">
+                                Opinión de la comunidad
+                              </span>
+                            ) : null}
                           </p>
                           <p className="text-xs text-slate-400">{review.date}</p>
                         </div>
@@ -845,9 +855,7 @@ function ProductoDetalleContent({ id }) {
         </div>
       </main>
 
-      <footer className="mt-4 border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-        Mi Juguetería · Juguetes seguros para cada etapa
-      </footer>
+      <StoreFooter />
     </div>
   )
 }

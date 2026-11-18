@@ -274,7 +274,23 @@ async function deriveEncryptionKey(password, salt) {
     256,
   )
 
-  return crypto.subtle.importKey('raw', bits, 'AES-GCM', false, ['encrypt'])
+  return crypto.subtle.importKey('raw', bits, 'AES-GCM', false, [
+    'encrypt',
+    'decrypt',
+  ])
+}
+
+async function decryptPersonalData(personalData, key) {
+  const plaintext = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv: base64ToBytes(personalData.iv),
+    },
+    key,
+    base64ToBytes(personalData.ciphertext),
+  )
+
+  return JSON.parse(new TextDecoder().decode(plaintext))
 }
 
 async function encryptPersonalData(personalData, key, salt) {
@@ -448,12 +464,35 @@ export async function registerUser({
 /* Sesión e inicio de sesión                                           */
 /* ------------------------------------------------------------------ */
 
-function buildSession(user, normalizedEmail) {
+/** Nombre legible de respaldo cuando no se puede descifrar el dato personal. */
+function fallbackDisplayName(email) {
+  const localPart = String(email ?? '').split('@')[0] ?? ''
+  const words = localPart
+    .replace(/[._-]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+
+  if (words.length === 0) return 'Cliente'
+
+  return words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+function normalizeDisplayName(value, email) {
+  return (
+    sanitizePlainText(value, { max: 80 }) || fallbackDisplayName(email)
+  )
+}
+
+function buildSession(user, normalizedEmail, displayName = '') {
   const issuedAt = Date.now()
 
   return {
     userId: user.id,
     email: normalizedEmail,
+    displayName: normalizeDisplayName(displayName, normalizedEmail),
     role: user.role === 'admin' ? 'admin' : 'cliente',
     signedInAt: new Date(issuedAt).toISOString(),
     lastActivityAt: new Date(issuedAt).toISOString(),
@@ -461,6 +500,12 @@ function buildSession(user, normalizedEmail) {
     idleTimeoutMs: SESSION_IDLE_MS,
     securityVersion: 2,
   }
+}
+
+/** Nombre visible de la sesión, con respaldo para sesiones antiguas. */
+export function getSessionDisplayName(session) {
+  if (!session) return ''
+  return normalizeDisplayName(session.displayName, session.email)
 }
 
 function writeSession(session) {
@@ -551,7 +596,25 @@ export async function loginUser({ email, password }) {
     user = { ...user, password: await migratePassword(user, password) }
   }
 
-  const session = writeSession(buildSession(user, normalizedEmail))
+  // El nombre se guarda cifrado. Al iniciar sesión tenemos la contraseña en
+  // memoria, así que lo desciframos solo para mostrarlo en la cabecera; el
+  // dato cifrado sigue siendo la única copia persistida.
+  let displayName = ''
+
+  try {
+    if (user.personalData?.salt && user.personalData?.ciphertext) {
+      const key = await deriveEncryptionKey(password, user.personalData.salt)
+      const personalData = await decryptPersonalData(user.personalData, key)
+      displayName = personalData?.fullName ?? ''
+    }
+  } catch {
+    // Si el dato no se puede descifrar (versión antigua o almacenamiento
+    // manipulado), usamos un nombre derivado del correo.
+  }
+
+  const session = writeSession(
+    buildSession(user, normalizedEmail, displayName),
+  )
 
   notifySessionChanged({ session })
 
@@ -585,6 +648,7 @@ export function getSession({ touch = false } = {}) {
 
   const session = {
     ...parsed,
+    displayName: normalizeDisplayName(parsed.displayName, parsed.email),
     role: parsed.role === 'admin' ? 'admin' : 'cliente',
   }
 
@@ -609,12 +673,14 @@ export function touchSession(session = safeGetJson(SESSION_STORAGE_KEY, null)) {
   if (elapsed < SESSION_TOUCH_INTERVAL_MS && session.expiresAt) {
     return {
       ...session,
+      displayName: normalizeDisplayName(session.displayName, session.email),
       role: session.role === 'admin' ? 'admin' : 'cliente',
     }
   }
 
   const next = {
     ...session,
+    displayName: normalizeDisplayName(session.displayName, session.email),
     role: session.role === 'admin' ? 'admin' : 'cliente',
     lastActivityAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SESSION_IDLE_MS).toISOString(),

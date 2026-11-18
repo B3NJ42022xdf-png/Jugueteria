@@ -6,12 +6,13 @@
  * liviano y esta información pueda venir luego de un endpoint de detalle.
  */
 
-import { createToyImage } from './products.js'
+import { PEXELS } from './products.js'
 import {
   authorColor,
   displayAuthorName,
   formatReviewDate,
   listProductReviews,
+  listPublicReviews,
 } from '../services/reviewService.js'
 
 export const PRODUCT_STOCK = {
@@ -134,150 +135,148 @@ const DESCRIPTIONS = {
 
 const GALLERY_EXTRAS = {
   'lego-castillo-medieval': [
-    createToyImage('🛡️', '#4c1d95', '#8b5cf6'),
-    createToyImage('👑', '#f59e0b', '#db2777'),
+    PEXELS('13548803'),
+    PEXELS('37088149'),
   ],
   'lego-bloques-creativos': [
-    createToyImage('🎨', '#0ea5e9', '#f59e0b'),
-    createToyImage('🏗️', '#ef4444', '#f97316'),
+    PEXELS('19916221'),
+    PEXELS('19916226'),
   ],
   'muneca-ariana-vestidos': [
-    createToyImage('👗', '#a21caf', '#f472b6'),
-    createToyImage('🎀', '#ec4899', '#fb7185'),
+    PEXELS('15101958'),
+    PEXELS('18844538'),
   ],
   'figuras-aventura': [
-    createToyImage('🧭', '#166534', '#84cc16'),
-    createToyImage('🗺️', '#b45309', '#fbbf24'),
+    PEXELS('6159682'),
+    PEXELS('16075337'),
   ],
   'oso-peluche-gigante': [
-    createToyImage('🤗', '#b45309', '#fbbf24'),
-    createToyImage('🎁', '#f59e0b', '#ef4444'),
+    PEXELS('4887162'),
+    PEXELS('40853950'),
   ],
   'peluche-suave-dormir': [
-    createToyImage('🌙', '#f9a8d4', '#c084fc'),
-    createToyImage('🧸', '#fb7185', '#f59e0b'),
+    PEXELS('7436118'),
+    PEXELS('11007818'),
   ],
   'auto-carreras-turbo': [
-    createToyImage('🏁', '#111827', '#ef4444'),
-    createToyImage('🔧', '#374151', '#f97316'),
+    PEXELS('18070140'),
+    PEXELS('19342203'),
   ],
   'tren-carga-madera': [
-    createToyImage('🚂', '#92400e', '#f59e0b'),
-    createToyImage('🛤️', '#065f46', '#84cc16'),
+    PEXELS('14739171'),
+    PEXELS('32720289'),
   ],
   'rompecabezas-sistema-solar': [
-    createToyImage('🌞', '#f59e0b', '#6366f1'),
-    createToyImage('🔭', '#1e1b4b', '#8b5cf6'),
+    PEXELS('7269450'),
+    PEXELS('4124718'),
   ],
   'kit-ciencias-volcan': [
-    createToyImage('🧪', '#0f766e', '#84cc16'),
-    createToyImage('🌍', '#7c2d12', '#22c55e'),
+    PEXELS('7106020'),
+    PEXELS('8471832'),
   ],
   'monopolio-junior': [
-    createToyImage('💰', '#047857', '#facc15'),
-    createToyImage('🏠', '#065f46', '#34d399'),
+    PEXELS('37983582'),
+    PEXELS('8111328'),
   ],
   'ajedrez-madera': [
-    createToyImage('♜', '#292524', '#78716c'),
-    createToyImage('🏆', '#a16207', '#facc15'),
+    PEXELS('17768376'),
+    PEXELS('6114955'),
   ],
   'patineta-espacial': [
-    createToyImage('🛴', '#0e7490', '#38bdf8'),
-    createToyImage('⚙️', '#155e75', '#22d3ee'),
+    PEXELS('8071374'),
+    PEXELS('35353534'),
   ],
   'cohete-de-agua': [
-    createToyImage('💦', '#0369a1', '#38bdf8'),
-    createToyImage('🌤️', '#1d4ed8', '#93c5fd'),
+    PEXELS('7105805'),
+    PEXELS('7105813'),
   ],
   'sonajero-arcoiris': [
-    createToyImage('🎵', '#f59e0b', '#a855f7'),
-    createToyImage('👶', '#fb7185', '#fde047'),
+    PEXELS('6849274'),
+    PEXELS('13627969'),
   ],
   'alfombra-actividades': [
-    createToyImage('🎈', '#22c55e', '#facc15'),
-    createToyImage('🧩', '#fde047', '#38bdf8'),
+    PEXELS('7499406'),
+    PEXELS('14007163'),
   ],
-
-  /* Navidad */
   'arbol-navideno-interactivo': [
-    createToyImage('🎄', '#166534', '#4ade80'),
-    createToyImage('🌟', '#b45309', '#fde047'),
+    PEXELS('724375'),
+    PEXELS('35036735'),
   ],
   'santa-peluche-gigante': [
-    createToyImage('🎅', '#7f1d1d', '#fca5a5'),
-    createToyImage('🎁', '#b91c1c', '#fbbf24'),
+    PEXELS('35074034'),
+    PEXELS('19580829'),
   ],
   'set-elfos-ayudantes': [
-    createToyImage('🧝', '#14532d', '#86efac'),
-    createToyImage('🔨', '#166534', '#facc15'),
+    PEXELS('28674744'),
+    PEXELS('19654186'),
   ],
   'trineo-madera-deslizador': [
-    createToyImage('🛷', '#1e3a8a', '#bfdbfe'),
-    createToyImage('❄️', '#0c4a6e', '#e0f2fe'),
+    PEXELS('10782936'),
+    PEXELS('10525714'),
   ],
   'reno-luminoso-cantante': [
-    createToyImage('🦌', '#92400e', '#fde047'),
-    createToyImage('🎵', '#b91c1c', '#fca5a5'),
+    PEXELS('13464196'),
+    PEXELS('19387241'),
   ],
   'caja-regalos-sorpresa': [
-    createToyImage('🎁', '#be123c', '#fda4af'),
-    createToyImage('🎀', '#b91c1c', '#fde047'),
+    PEXELS('1666067'),
+    PEXELS('35213083'),
   ],
   'calcetines-navidenos-pack': [
-    createToyImage('🧦', '#991b1b', '#fecaca'),
-    createToyImage('🔥', '#7f1d1d', '#fbbf24'),
+    PEXELS('1734424'),
+    PEXELS('35183047'),
   ],
   'corona-adviento-madera': [
-    createToyImage('🕯️', '#14532d', '#facc15'),
-    createToyImage('🌿', '#166534', '#bef264'),
+    PEXELS('30069353'),
+    PEXELS('29908392'),
   ],
   'galletas-jengibre-juego': [
-    createToyImage('🍪', '#92400e', '#fde68a'),
-    createToyImage('🥛', '#1e3a8a', '#e0f2fe'),
+    PEXELS('29646000'),
+    PEXELS('29645999'),
   ],
   'casa-jengibre-armar': [
-    createToyImage('🏠', '#b45309', '#fde68a'),
-    createToyImage('🍬', '#be123c', '#fda4af'),
+    PEXELS('29600646'),
+    PEXELS('19274891'),
   ],
   'muneco-nieve-peluche': [
-    createToyImage('⛄', '#0284c7', '#e0f2fe'),
-    createToyImage('🧣', '#b91c1c', '#fecaca'),
+    PEXELS('35573529'),
+    PEXELS('19054428'),
   ],
   'estrella-navidena-luz': [
-    createToyImage('⭐', '#b45309', '#fde047'),
-    createToyImage('✨', '#7c2d12', '#fef3c7'),
+    PEXELS('3219800'),
+    PEXELS('1625158'),
   ],
   'tren-navideno-electrico': [
-    createToyImage('🚂', '#14532d', '#f59e0b'),
-    createToyImage('🛤️', '#78350f', '#d97706'),
+    PEXELS('29872018'),
+    PEXELS('35249652'),
   ],
   'duende-travieso-interactivo': [
-    createToyImage('🧝‍♂️', '#991b1b', '#4ade80'),
-    createToyImage('🎁', '#166534', '#facc15'),
+    PEXELS('14781999'),
+    PEXELS('34356966'),
   ],
   'bolsa-regalos-magica': [
-    createToyImage('🛍️', '#7f1d1d', '#f59e0b'),
-    createToyImage('🎁', '#b91c1c', '#fde047'),
+    PEXELS('29793829'),
+    PEXELS('1666067'),
   ],
   'campanas-navidenas-musicales': [
-    createToyImage('🔔', '#b45309', '#fde047'),
-    createToyImage('🎶', '#14532d', '#facc15'),
+    PEXELS('34932724'),
+    PEXELS('35181309'),
   ],
   'patineta-nieve-nordica': [
-    createToyImage('🛹', '#0f766e', '#99f6e4'),
-    createToyImage('❄️', '#0e7490', '#e0f2fe'),
+    PEXELS('35513534'),
+    PEXELS('27642796'),
   ],
   'kit-cartas-papa-noel': [
-    createToyImage('✉️', '#b91c1c', '#fef3c7'),
-    createToyImage('✍️', '#7f1d1d', '#fde68a'),
+    PEXELS('5723951'),
+    PEXELS('10640134'),
   ],
   'pesebre-madera-artesanal': [
-    createToyImage('🐑', '#78350f', '#fcd34d'),
-    createToyImage('🌟', '#14532d', '#fde047'),
+    PEXELS('14692977'),
+    PEXELS('1727677'),
   ],
   'luces-led-cascada': [
-    createToyImage('✨', '#14532d', '#fde047'),
-    createToyImage('💡', '#7c2d12', '#fef3c7'),
+    PEXELS('327472'),
+    PEXELS('29926019'),
   ],
 }
 
@@ -548,7 +547,8 @@ export function getProductReviews(product) {
     Math.floor(Number(product.baseReviews ?? product.reviews) || 0),
   )
   const published = listProductReviews(product.id)
-  const total = baseReviews + published.length
+  const community = listPublicReviews(product.id)
+  const total = baseReviews + published.length + community.length
 
   // Conteo por estrella: históricas + opiniones verificadas publicadas.
   const percents = basePercent(baseRating)
@@ -561,6 +561,10 @@ export function getProductReviews(product) {
   }
 
   published.forEach((review) => {
+    starCounts[review.stars] += 1
+  })
+
+  community.forEach((review) => {
     starCounts[review.stars] += 1
   })
 
@@ -597,7 +601,20 @@ export function getProductReviews(product) {
         })
       : []
 
-  // Las opiniones reales van primero y siempre son de compra verificada.
+  // Las opiniones de la comunidad se publican al instante desde la ficha
+  // rápida; las verificadas provienen de una compra entregada.
+  const communityItems = community.map((review) => ({
+    id: review.id,
+    author: displayAuthorName(review.customerName),
+    color: authorColor(review.customerName),
+    date: formatReviewDate(review.updatedAt),
+    rating: review.stars,
+    verified: false,
+    community: true,
+    comment: review.comment,
+    isReal: true,
+  }))
+
   const realItems = published.map((review) => ({
     id: review.id,
     author: displayAuthorName(review.customerName),
@@ -613,11 +630,12 @@ export function getProductReviews(product) {
     average,
     total,
     realCount: published.length,
+    communityCount: community.length,
     breakdown: [5, 4, 3, 2, 1].map((stars) => ({
       stars,
       percent:
         total > 0 ? Math.round((starCounts[stars] / total) * 100) : 0,
     })),
-    items: [...realItems, ...sampleItems],
+    items: [...communityItems, ...realItems, ...sampleItems],
   }
 }

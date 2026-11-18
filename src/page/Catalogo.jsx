@@ -1,6 +1,9 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import GiftFinder from '../components/GiftFinder.jsx'
 import ProductCard from '../components/ProductCard.jsx'
 import SearchAutocomplete from '../components/SearchAutocomplete.jsx'
+import StoreFooter from '../components/StoreFooter.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
 import {
   ChristmasCountdown,
@@ -10,15 +13,25 @@ import {
 import { filterAndSortProducts } from '../lib/catalog.js'
 import { AGE_GROUPS, PRICE_MIN, PRICE_STEP } from '../data/products.js'
 import {
+  ChristmasTree,
+  Gift,
+  Snowflake,
+  Sparkles,
+  Star,
+  TeddyBear,
+  Truck,
+} from '../components/icons.jsx'
+import {
   getCatalogSnapshot,
   loadCatalog,
 } from '../services/catalogApi.js'
 import { measureSync } from '../services/performanceService.js'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
 const QUICK_SEARCHES = ['Navidad', 'Papá Noel', 'Regalos', 'Árbol']
@@ -266,6 +279,7 @@ function CatalogoContent({ catalog }) {
   const [maxPrice, setMaxPrice] = useState(meta.priceMax)
   const [sort, setSort] = useState('popularity')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [giftFinderOpen, setGiftFinderOpen] = useState(false)
   const deferredSearch = useDeferredValue(searchInput)
 
   const activeFilterCount =
@@ -347,21 +361,21 @@ function CatalogoContent({ catalog }) {
 
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute left-4 top-14 animate-twinkle text-3xl sm:left-6"
+              className="pointer-events-none absolute left-4 top-14 animate-twinkle text-amber-300 sm:left-6"
             >
-              ⭐
+              <Star className="h-7 w-7" />
             </span>
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-8 right-6 hidden animate-twinkle text-3xl [animation-delay:0.7s] sm:block"
+              className="pointer-events-none absolute bottom-8 right-6 hidden animate-twinkle text-amber-200 [animation-delay:0.7s] sm:block"
             >
-              ✨
+              <Sparkles className="h-7 w-7" />
             </span>
 
             <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
               <div className="max-w-2xl animate-slide-up">
                 <span className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-red-900 shadow-sm ring-2 ring-amber-200/60">
-                  🎄 Especial Navidad · Diciembre
+                  <ChristmasTree className="h-3.5 w-3.5" /> Especial Navidad · Diciembre
                 </span>
                 <h1 className="christmas-glow-text mt-3 font-festive text-4xl font-bold leading-[1.05] tracking-wide text-white sm:text-6xl">
                   La Navidad llegó a{' '}
@@ -406,15 +420,25 @@ function CatalogoContent({ catalog }) {
                     onClick={showChristmasProducts}
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-amber-300 to-amber-500 px-6 py-3 text-sm font-black text-red-950 shadow-[0_6px_0_#b7791f,0_16px_30px_-14px_rgba(0,0,0,0.7)] transition-all duration-200 hover:-translate-y-1 hover:from-amber-200 hover:to-amber-400 hover:shadow-[0_9px_0_#b7791f,0_22px_36px_-14px_rgba(0,0,0,0.75)] active:translate-y-0 active:shadow-[0_3px_0_#b7791f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/80"
                   >
-                    🎁 Ver juguetes de Navidad
+                    <Gift className="h-4 w-4" /> Ver juguetes de Navidad
                   </button>
+
+                  {/* Asistente: abre el quiz de 3 pasos con recomendaciones. */}
+                  <button
+                    type="button"
+                    onClick={() => setGiftFinderOpen(true)}
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-emerald-300 to-emerald-500 px-6 py-3 text-sm font-black text-emerald-950 shadow-[0_6px_0_#065f46,0_16px_30px_-14px_rgba(0,0,0,0.7)] transition-all duration-200 hover:-translate-y-1 hover:from-emerald-200 hover:to-emerald-400 hover:shadow-[0_9px_0_#065f46,0_22px_36px_-14px_rgba(0,0,0,0.75)] active:translate-y-0 active:shadow-[0_3px_0_#065f46] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200/80"
+                  >
+                    <Sparkles className="h-4 w-4" /> Asistente de Regalos
+                  </button>
+
                   {/* Acción secundaria: outline con fondo sutil, sin competir con la principal. */}
                   <button
                     type="button"
                     onClick={clearFilters}
                     className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-yellow-300/90 bg-white/10 px-6 py-3 text-sm font-extrabold text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-yellow-300 hover:bg-yellow-300/20 hover:text-white active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-yellow-300/50"
                   >
-                    ❄️ Ver todo el catálogo
+                    <Snowflake className="h-4 w-4" /> Ver todo el catálogo
                   </button>
                 </div>
               </div>
@@ -434,16 +458,16 @@ function CatalogoContent({ catalog }) {
 
           <div className="mt-6 grid gap-3 animate-slide-up stagger-4 sm:grid-cols-3">
             {[
-              { emoji: '🎁', title: 'Regalos de diciembre', text: 'Listos para sorprender' },
-              { emoji: '🚚', title: 'Envío navideño', text: 'A todo el país' },
-              { emoji: '❄️', title: 'Magia garantizada', text: 'Juguetes certificados' },
+              { icon: Gift, title: 'Regalos de diciembre', text: 'Listos para sorprender' },
+              { icon: Truck, title: 'Envío navideño', text: 'A todo el país' },
+              { icon: Snowflake, title: 'Magia garantizada', text: 'Juguetes certificados' },
             ].map((item) => (
               <div
                 key={item.title}
                 className="flex items-center gap-3 rounded-2xl border-2 border-white bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-50 text-xl ring-2 ring-amber-100" aria-hidden="true">
-                  {item.emoji}
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600 ring-2 ring-amber-100" aria-hidden="true">
+                  <item.icon className="h-5 w-5" />
                 </span>
                 <span className="min-w-0">
                   <span className="block font-display text-sm font-extrabold text-toy-ink">
@@ -546,10 +570,10 @@ function CatalogoContent({ catalog }) {
               ) : (
                 <div className="animate-pop-in rounded-[30px] border-[3px] border-dashed border-[#ffd9a8] bg-white px-6 py-14 text-center">
                   <div
-                    className="mx-auto flex h-28 w-28 animate-float items-center justify-center rounded-full bg-gradient-to-br from-toy-sun/50 via-toy-orange/20 to-toy-bubble/20 text-5xl"
+                    className="mx-auto flex h-28 w-28 animate-float items-center justify-center rounded-full bg-gradient-to-br from-toy-sun/50 via-toy-orange/20 to-toy-bubble/20 text-toy-coral"
                     aria-hidden="true"
                   >
-                    🧸
+                    <TeddyBear className="h-14 w-14" />
                   </div>
                   <div
                     className="mx-auto -mt-3 grid h-11 w-11 place-items-center rounded-full bg-white text-toy-coral shadow-md ring-2 ring-[#ffe3c2]"
@@ -564,13 +588,22 @@ function CatalogoContent({ catalog }) {
                     Parece que la búsqueda no coincide con nada de nuestro catálogo. Prueba con
                     otra palabra o ajusta los filtros de categoría, edad, marca y precio.
                   </p>
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="toy-btn mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-extrabold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-toy-sun/60"
-                  >
-                    Limpiar filtros
-                  </button>
+                  <div className="mt-6 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="toy-btn inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-extrabold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-toy-sun/60 sm:w-auto"
+                    >
+                      Limpiar filtros
+                    </button>
+                    <Link
+                      to="/catalogo"
+                      onClick={clearFilters}
+                      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#ffe3c2] bg-white px-5 py-2.5 text-sm font-extrabold text-slate-700 transition hover:-translate-y-0.5 hover:border-toy-sun hover:text-red-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-toy-sun/60 sm:w-auto"
+                    >
+                      Ver todo el catálogo
+                    </Link>
+                  </div>
                 </div>
               )}
             </section>
@@ -578,16 +611,15 @@ function CatalogoContent({ catalog }) {
         </div>
       </main>
 
-      <footer className="relative mt-6 overflow-hidden border-t-2 border-red-900/10 bg-gradient-to-r from-[#7f1d1d] via-[#b91c1c] to-[#14532d] py-7 text-center text-white">
-        <div aria-hidden="true" className="christmas-stripes h-1.5 w-full" />
-        <p className="mt-4 font-festive text-lg font-bold tracking-wide text-amber-200">
-          🎄 Mi Juguetería · Especial Navidad
-        </p>
-        <p className="mt-1 text-xs font-semibold text-amber-50/80">
-          Juguetes seguros para cada etapa · Papá Noel y sus elfos te desean
-          felices fiestas
-        </p>
-      </footer>
+      <StoreFooter />
+
+      {giftFinderOpen && (
+        <GiftFinder
+          open
+          onClose={() => setGiftFinderOpen(false)}
+          products={products}
+        />
+      )}
     </div>
   )
 }

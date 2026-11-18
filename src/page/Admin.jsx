@@ -5,6 +5,14 @@ import AdminOrders from '../components/AdminOrders.jsx'
 import AdminPerformance from '../components/AdminPerformance.jsx'
 import AdminReviews from '../components/AdminReviews.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
+import {
+  Bolt,
+  Package,
+  Search,
+  Shield,
+  Star,
+  TeddyBear,
+} from '../components/icons.jsx'
 import { getSession } from '../services/authService.js'
 import { formatBytes, optimizeImageFile } from '../services/imageService.js'
 import {
@@ -18,13 +26,14 @@ import {
   updateProductStock,
 } from '../services/productService.js'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
-const numberFormatter = new Intl.NumberFormat('es-CO')
+const numberFormatter = new Intl.NumberFormat('es-PE')
 
 const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024
 
@@ -47,7 +56,7 @@ const FILTERS = [
 ]
 
 function formatPrice(value) {
-  return priceFormatter.format(Math.round(Number(value) || 0))
+  return priceFormatter.format(Number(value) || 0)
 }
 
 function stockTone(stock) {
@@ -359,18 +368,18 @@ function ProductForm({ form, categories, brands, onChange, onClose, onSubmit, er
 
               <label className="block">
                 <span className="text-[11px] font-bold text-slate-600">
-                  Precio (COP) *
+                  Precio (S/) *
                 </span>
                 <input
                   type="number"
                   required
-                  min="1"
-                  step="1"
+                  min="0.01"
+                  step="0.01"
                   value={values.price}
                   onChange={(event) =>
                     onChange({ values: { ...values, price: event.target.value } })
                   }
-                  placeholder="89900"
+                  placeholder="89.90"
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 shadow-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
                 />
               </label>
@@ -407,8 +416,8 @@ function ProductForm({ form, categories, brands, onChange, onClose, onSubmit, er
                       className="h-24 w-24 shrink-0 rounded-2xl border border-slate-200 bg-white object-cover"
                     />
                   ) : (
-                    <span className="grid h-24 w-24 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white text-4xl">
-                      🧸
+                    <span className="grid h-24 w-24 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-white text-slate-400">
+                      <TeddyBear className="h-10 w-10" />
                     </span>
                   )}
 
@@ -448,8 +457,8 @@ function ProductForm({ form, categories, brands, onChange, onClose, onSubmit, er
                       su peso sin perder calidad visible.
                     </p>
                     {imageNote && (
-                      <p className="mt-1.5 rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700">
-                        ⚡ {imageNote}
+                      <p className="mt-1.5 flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-700">
+                        <Bolt className="h-3 w-3" /> {imageNote}
                       </p>
                     )}
                   </div>
@@ -717,7 +726,7 @@ function AdminPanel({ session }) {
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
-              🧸 Inventario
+              <TeddyBear className="h-4 w-4" /> Inventario
             </button>
             <button
               type="button"
@@ -729,7 +738,7 @@ function AdminPanel({ session }) {
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
-              📦 Pedidos y envíos
+              <Package className="h-4 w-4" /> Pedidos y envíos
             </button>
             <button
               type="button"
@@ -741,7 +750,7 @@ function AdminPanel({ session }) {
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
-              ⭐ Opiniones
+              <Star className="h-4 w-4" /> Opiniones
             </button>
             <button
               type="button"
@@ -753,7 +762,7 @@ function AdminPanel({ session }) {
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
-              ⚡ Rendimiento
+              <Bolt className="h-4 w-4" /> Rendimiento
             </button>
             <button
               type="button"
@@ -765,7 +774,7 @@ function AdminPanel({ session }) {
                   : 'text-slate-500 hover:bg-slate-100'
               }`}
             >
-              🛡️ Disponibilidad
+              <Shield className="h-4 w-4" /> Disponibilidad
             </button>
           </nav>
 
@@ -1055,8 +1064,8 @@ function AdminPanel({ session }) {
 
             {visibleProducts.length === 0 && (
               <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-                <span className="text-4xl" aria-hidden="true">
-                  🔎
+                <span aria-hidden="true">
+                  <Search className="mx-auto h-10 w-10 text-slate-300" />
                 </span>
                 <h3 className="mt-3 text-base font-black text-slate-900">
                   No encontramos juguetes

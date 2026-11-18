@@ -1,7 +1,10 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import CartToast from './components/CartToast.jsx'
+import DemoPanel from './components/DemoPanel.jsx'
 import Snowfall from './components/Snowfall.jsx'
+import { ChristmasTree } from './components/icons.jsx'
+import { useSnow } from './context/snowContext.js'
 import Catalogo from './page/Catalogo'
 
 /**
@@ -13,7 +16,9 @@ const Admin = lazy(() => import('./page/Admin'))
 const CalificarProducto = lazy(() => import('./page/CalificarProducto'))
 const Carrito = lazy(() => import('./page/Carrito'))
 const Checkout = lazy(() => import('./page/Checkout'))
+const Favoritos = lazy(() => import('./page/Favoritos'))
 const Login = lazy(() => import('./page/Login'))
+const MisPedidos = lazy(() => import('./page/MisPedidos'))
 const OrdenDetalle = lazy(() => import('./page/OrdenDetalle'))
 const Perfil = lazy(() => import('./page/Perfil'))
 const ProductoDetalle = lazy(() => import('./page/ProductoDetalle'))
@@ -23,6 +28,8 @@ const ROUTE_TITLES = [
   { prefix: '/producto/', title: 'Detalle del juguete' },
   { prefix: '/calificar/', title: 'Calificar producto' },
   { prefix: '/orden/', title: 'Detalle del pedido' },
+  { prefix: '/mis-pedidos', title: 'Mis pedidos' },
+  { prefix: '/favoritos', title: 'Mis favoritos' },
   { prefix: '/catalogo', title: 'Catálogo de juguetes' },
   { prefix: '/carrito', title: 'Mi carrito' },
   { prefix: '/checkout', title: 'Resumen de pago' },
@@ -53,8 +60,8 @@ function RouteFallback() {
       aria-live="polite"
     >
       <div className="text-center">
-        <span className="mx-auto grid h-16 w-16 animate-bounce-in place-items-center rounded-3xl bg-gradient-to-br from-red-600 via-red-500 to-amber-400 text-3xl shadow-lg shadow-red-900/30">
-          🎄
+        <span className="mx-auto grid h-16 w-16 animate-bounce-in place-items-center rounded-3xl bg-gradient-to-br from-red-600 via-red-500 to-amber-400 text-white shadow-lg shadow-red-900/30">
+          <ChristmasTree className="h-8 w-8" />
         </span>
         <p className="mt-4 font-display text-base font-bold text-slate-600">
           Preparando la Navidad…
@@ -87,6 +94,8 @@ function AnimatedRoutes() {
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/orden/:id" element={<OrdenDetalle />} />
+        <Route path="/mis-pedidos" element={<MisPedidos />} />
+        <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/admin" element={<Admin />} />
         <Route
@@ -103,11 +112,14 @@ function AnimatedRoutes() {
 }
 
 function App() {
+  const { snowEnabled } = useSnow()
+
   return (
     <Suspense fallback={<RouteFallback />}>
       <RouteMeta />
-      <Snowfall />
+      {snowEnabled && <Snowfall />}
       <CartToast />
+      <DemoPanel />
       <AnimatedRoutes />
     </Suspense>
   )

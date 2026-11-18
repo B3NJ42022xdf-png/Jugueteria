@@ -10,10 +10,11 @@ import { normalizeText } from '../lib/catalog.js'
 
 const MAX_SUGGESTIONS = 6
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
 function SearchIcon({ className = 'h-5 w-5' }) {

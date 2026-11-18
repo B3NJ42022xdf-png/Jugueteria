@@ -14,7 +14,7 @@
  * administrador; la validación de rol nunca debe quedarse solo en el cliente.
  */
 
-import { PRODUCTS, createToyImage } from '../data/products.js'
+import { DEFAULT_PRODUCT_IMAGE, PRODUCTS } from '../data/products.js'
 import { PRODUCT_STOCK } from '../data/productDetails.js'
 import {
   safeSetItem,
@@ -102,7 +102,7 @@ function mergeProduct(product, changes, stockMap) {
   // localStorage antes de que lleguen a React.
   const image = sanitizeUrl(stored.imageUrl ?? stored.image, {
     allowDataImage: true,
-  }) || createToyImage('🧸', '#7c3aed', '#db2777')
+  }) || DEFAULT_PRODUCT_IMAGE
 
   const merged = {
     ...stored,
@@ -180,9 +180,8 @@ export function getCatalogMeta() {
     (a, b) => a.localeCompare(b, 'es'),
   )
   const priceMax = Math.max(
-    100000,
-    Math.ceil(Math.max(0, ...products.map((product) => product.price)) / 10000) *
-      10000,
+    100,
+    Math.ceil(Math.max(0, ...products.map((product) => product.price)) / 10) * 10,
   )
 
   return { categories, brands, priceMax, total: products.length }
@@ -223,7 +222,7 @@ function sanitizePrice(value) {
     throw new Error('Ingresa un precio válido mayor a 0.')
   }
 
-  return Math.round(price)
+  return Math.round(price * 100) / 100
 }
 
 function sanitizeStock(value) {
@@ -290,7 +289,7 @@ function buildFields(input, current = {}) {
   const ageRange = sanitizeAge(
     input.ageRange ?? input.age ?? current.ageRange ?? current.age,
   )
-  const fallbackImage = current.imageUrl ?? current.image ?? createToyImage('🧸', '#7c3aed', '#db2777')
+  const fallbackImage = current.imageUrl ?? current.image ?? DEFAULT_PRODUCT_IMAGE
   const imageUrl = sanitizeImage(
     input.imageUrl ?? input.image ?? current.imageUrl ?? current.image,
     fallbackImage,

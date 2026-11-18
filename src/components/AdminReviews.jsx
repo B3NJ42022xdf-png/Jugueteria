@@ -7,7 +7,7 @@ import {
   setReviewHidden,
 } from '../services/reviewService.js'
 
-const dateTimeFormatter = new Intl.DateTimeFormat('es-CO', {
+const dateTimeFormatter = new Intl.DateTimeFormat('es-PE', {
   dateStyle: 'medium',
   timeStyle: 'short',
 })
@@ -266,8 +266,8 @@ export default function AdminReviews() {
 
       {reviews.length === 0 ? (
         <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
-          <span className="text-5xl" aria-hidden="true">
-            ⭐
+          <span aria-hidden="true">
+            <StarIcon filled className="mx-auto h-12 w-12 text-amber-400" />
           </span>
           <h3 className="mt-4 text-lg font-black text-slate-900">
             Todavía no hay opiniones
@@ -279,8 +279,8 @@ export default function AdminReviews() {
         </div>
       ) : visibleReviews.length === 0 ? (
         <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-          <span className="text-4xl" aria-hidden="true">
-            🔎
+          <span aria-hidden="true">
+            <SearchIcon className="mx-auto h-10 w-10 text-slate-300" />
           </span>
           <h3 className="mt-3 text-base font-black text-slate-900">
             No encontramos opiniones

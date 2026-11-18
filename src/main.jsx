@@ -5,6 +5,8 @@ import './index.css'
 import App from './App.jsx'
 import SessionGuard from './components/SessionGuard.jsx'
 import CartProvider from './context/CartProvider.jsx'
+import FavoritesProvider from './context/FavoritesProvider.jsx'
+import SnowProvider from './context/SnowProvider.jsx'
 import {
   auditLocalStorageForPaymentData,
   enforceHttps,
@@ -29,9 +31,13 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <SessionGuard />
-      <CartProvider>
-        <App />
-      </CartProvider>
+      <SnowProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </FavoritesProvider>
+      </SnowProvider>
     </BrowserRouter>
   </StrictMode>,
 )

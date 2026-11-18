@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useCart } from '../context/cartContext.js'
-import { CART_TOAST_EVENT } from '../lib/cartEvents.js'
+import { useFavorites } from '../context/favoritesContext.js'
+import { showToast, TOAST_KINDS } from '../lib/toast.js'
 import { InsufficientStockError } from '../services/storeService.js'
+import ProductQuickView from './ProductQuickView.jsx'
+import { ChristmasTree, Heart, HeartFilled, Snowflake } from './icons.jsx'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
-const numberFormatter = new Intl.NumberFormat('es-CO')
+const numberFormatter = new Intl.NumberFormat('es-PE')
 
 /**
  * Colores por estado del producto. Se usa el texto del badge como clave para
@@ -129,8 +132,10 @@ function Stars({ rating, reviews }) {
  */
 export default function ProductCard({ product, priority = false }) {
   const { addItem } = useCart()
+  const { isFavorite, toggleFavorite } = useFavorites()
   const [status, setStatus] = useState('idle')
   const [feedback, setFeedback] = useState('')
+  const [quickViewOpen, setQuickViewOpen] = useState(false)
   const resetTimerRef = useRef(null)
 
   useEffect(
@@ -157,6 +162,22 @@ export default function ProductCard({ product, priority = false }) {
   const discount = Number(product.discount) || 0
   const oldPrice = Number(product.oldPrice) || 0
   const hasOffer = discount > 0 && oldPrice > product.price
+  const favorite = isFavorite(product.id)
+
+  function handleToggleFavorite() {
+    const added = toggleFavorite(product.id)
+
+    showToast({
+      kind: added ? TOAST_KINDS.FAVORITE : TOAST_KINDS.FAVORITE_REMOVED,
+      title: product.name,
+      message: added
+        ? 'Lo guardamos en tu lista de deseos.'
+        : 'Lo quitamos de tu lista de deseos.',
+      image: imageUrl,
+      href: '/favoritos',
+      actionLabel: 'Ver favoritos →',
+    })
+  }
 
   function scheduleReset(delay) {
     window.clearTimeout(resetTimerRef.current)
@@ -179,16 +200,15 @@ export default function ProductCard({ product, priority = false }) {
       scheduleReset(2000)
 
       // El contador del encabezado se actualiza con el contexto del carrito;
-      // este evento solo dispara la notificación flotante global.
-      window.dispatchEvent(
-        new CustomEvent(CART_TOAST_EVENT, {
-          detail: {
-            id: product.id,
-            name: product.name,
-            image: imageUrl,
-          },
-        }),
-      )
+      // esta notificación flotante confirma la operación.
+      showToast({
+        kind: TOAST_KINDS.CART,
+        title: product.name,
+        message: 'Ya está en tu carrito.',
+        image: imageUrl,
+        href: '/carrito',
+        actionLabel: 'Ver carrito →',
+      })
     } catch (error) {
       setStatus('error')
       setFeedback(
@@ -206,21 +226,23 @@ export default function ProductCard({ product, priority = false }) {
         status === 'added' ? 'animate-added-flash' : ''
       }`}
     >
-      <Link
-        to={`/producto/${product.id}`}
+      <button
+        type="button"
+        onClick={() => setQuickViewOpen(true)}
         aria-label={`Ver detalle de ${product.name}`}
-        className="absolute inset-0 z-10 rounded-[28px] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-toy-orange"
+        className="absolute inset-0 z-10 cursor-pointer rounded-[28px] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-toy-orange"
       />
 
       <div className="relative aspect-[4/3] overflow-hidden bg-toy-cream-deep">
         <img
           src={imageUrl}
-          alt={`${product.name} de ${product.brand}`}
+          alt={`${product.name}, juguete de ${product.brand} recomendado para niños de ${ageRange} años, categoría ${product.category}`}
           width="800"
           height="600"
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}
           decoding="async"
+          sizes="(min-width: 1536px) 25vw, (min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-110 group-hover:rotate-1"
         />
 
@@ -238,8 +260,31 @@ export default function ProductCard({ product, priority = false }) {
           </span>
         )}
 
+        <button
+          type="button"
+          onClick={handleToggleFavorite}
+          aria-pressed={favorite}
+          aria-label={
+            favorite
+              ? `Quitar ${product.name} de favoritos`
+              : `Guardar ${product.name} en favoritos`
+          }
+          title={favorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+          className={`absolute right-3 top-3 z-30 grid h-10 w-10 place-items-center rounded-full shadow-md ring-2 ring-white/80 backdrop-blur transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-300/70 ${
+            favorite
+              ? 'bg-rose-600 text-white hover:bg-rose-700'
+              : 'bg-white/90 text-slate-500 hover:bg-white hover:text-rose-600'
+          }`}
+        >
+          {favorite ? (
+            <HeartFilled className="h-5 w-5 animate-heart-pop" />
+          ) : (
+            <Heart className="h-5 w-5" />
+          )}
+        </button>
+
         {hasOffer ? (
-          <span className="absolute right-3 top-3 flex rotate-3 flex-col items-end gap-1">
+          <span className="absolute right-3 top-16 flex rotate-3 flex-col items-end gap-1">
             <span className="rounded-full bg-gradient-to-br from-red-600 to-rose-500 px-2.5 py-1 text-[11px] font-black text-white shadow-md ring-2 ring-white/70">
               -{discount}%
             </span>
@@ -251,9 +296,9 @@ export default function ProductCard({ product, priority = false }) {
           product.category === 'Navidad' && (
             <span
               aria-hidden="true"
-              className="absolute right-3 top-3 animate-twinkle select-none text-xl drop-shadow-sm"
+              className="absolute right-3 top-16 animate-twinkle text-sky-500 drop-shadow-sm"
             >
-              ❄️
+              <Snowflake className="h-5 w-5" />
             </span>
           )
         )}
@@ -293,7 +338,7 @@ export default function ProductCard({ product, priority = false }) {
 
         {hasOffer && (
           <span className="mt-1.5 inline-flex w-fit items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-200">
-            <span aria-hidden="true">🎄</span> ¡Oferta de temporada!
+            <ChristmasTree className="h-3.5 w-3.5" /> ¡Oferta de temporada!
           </span>
         )}
 
@@ -372,6 +417,13 @@ export default function ProductCard({ product, priority = false }) {
           {feedback}
         </p>
       </div>
+
+      {quickViewOpen && (
+        <ProductQuickView
+          product={product}
+          onClose={() => setQuickViewOpen(false)}
+        />
+      )}
     </article>
   )
 }

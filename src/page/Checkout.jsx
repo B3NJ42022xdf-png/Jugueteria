@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import CouponBox from '../components/CouponBox.jsx'
+import SimulatedQr from '../components/SimulatedQr.jsx'
+import StoreFooter from '../components/StoreFooter.jsx'
 import StoreHeader from '../components/StoreHeader.jsx'
+import { Building, ChristmasTree, Gift, Receipt } from '../components/icons.jsx'
 import { useCart } from '../context/cartContext.js'
+import { FREE_SHIPPING_FROM } from '../lib/cartTotals.js'
 import {
-  calculateShipping,
-  FREE_SHIPPING_FROM,
-} from '../lib/cartTotals.js'
+  DEMO_PREFILL_EVENT,
+  clearDemoCheckoutPrefill,
+  readDemoCheckoutPrefill,
+} from '../lib/demoMode.js'
 import { getSession } from '../services/authService.js'
 import {
   downloadReceiptPdf,
@@ -14,10 +20,11 @@ import {
 } from '../services/receiptService.js'
 import { validateCartStock } from '../services/storeService.js'
 
-const priceFormatter = new Intl.NumberFormat('es-CO', {
+const priceFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
 function formatPrice(value) {
@@ -40,7 +47,7 @@ function formatExpiry(value) {
 }
 
 function formatDate(isoDate) {
-  return new Date(isoDate).toLocaleString('es-CO', {
+  return new Date(isoDate).toLocaleString('es-PE', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
@@ -160,70 +167,6 @@ function DownloadIcon({ className = 'h-4 w-4' }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* QR simulado para Yape / Plin                                        */
-/* ------------------------------------------------------------------ */
-
-const QR_SIZE = 25
-
-function qrFinderValue(x, y) {
-  const boxes = [
-    [0, 0],
-    [QR_SIZE - 7, 0],
-    [0, QR_SIZE - 7],
-  ]
-
-  for (const [boxX, boxY] of boxes) {
-    if (x >= boxX && x < boxX + 7 && y >= boxY && y < boxY + 7) {
-      const dx = x - boxX
-      const dy = y - boxY
-      const border = dx === 0 || dx === 6 || dy === 0 || dy === 6
-      const center = dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4
-      return border || center
-    }
-  }
-
-  return null
-}
-
-function SimulatedQr({ className = 'h-40 w-40' }) {
-  const cells = []
-
-  for (let y = 0; y < QR_SIZE; y += 1) {
-    for (let x = 0; x < QR_SIZE; x += 1) {
-      const finder = qrFinderValue(x, y)
-      const on = finder ?? ((x * 13 + y * 7 + x * y) % 9 < 4)
-
-      if (on) {
-        cells.push(
-          <rect
-            key={`${x}-${y}`}
-            x={x}
-            y={y}
-            width="1"
-            height="1"
-            rx="0.12"
-          />,
-        )
-      }
-    }
-  }
-
-  return (
-    <svg
-      viewBox={`0 0 ${QR_SIZE} ${QR_SIZE}`}
-      className={className}
-      role="img"
-      aria-label="Código QR simulado para pagar con Yape o Plin"
-      fill="currentColor"
-      shapeRendering="crispEdges"
-    >
-      <rect width={QR_SIZE} height={QR_SIZE} fill="#ffffff" />
-      <g fill="#14532d">{cells}</g>
-    </svg>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /* Piezas de interfaz                                                  */
 /* ------------------------------------------------------------------ */
 
@@ -300,7 +243,16 @@ function Feedback({ feedback }) {
   )
 }
 
-function OrderSummary({ items, subtotal, shipping, total, itemCount }) {
+function OrderSummary({
+  items,
+  subtotal,
+  discount,
+  coupon,
+  shipping,
+  total,
+  savings,
+  itemCount,
+}) {
   return (
     <section
       aria-labelledby="checkout-resumen-title"
@@ -347,6 +299,21 @@ function OrderSummary({ items, subtotal, shipping, total, itemCount }) {
           <dt className="text-slate-500">Subtotal</dt>
           <dd className="font-bold text-slate-800">{formatPrice(subtotal)}</dd>
         </div>
+        {discount > 0 && (
+          <div className="flex items-center justify-between gap-3">
+            <dt className="flex items-center gap-1.5 font-semibold text-emerald-700">
+              Descuento
+              {coupon && (
+                <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-emerald-700">
+                  {coupon.code}
+                </span>
+              )}
+            </dt>
+            <dd className="font-black text-emerald-600">
+              -{formatPrice(discount)}
+            </dd>
+          </div>
+        )}
         <div className="flex items-center justify-between gap-3">
           <dt className="flex items-center gap-1.5 text-slate-500">
             <TruckIcon className="h-4 w-4" />
@@ -372,6 +339,12 @@ function OrderSummary({ items, subtotal, shipping, total, itemCount }) {
         </p>
       )}
 
+      {savings > 0 && (
+        <p className="mt-2 rounded-xl bg-emerald-50 px-3 py-2 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-200">
+          Estás ahorrando {formatPrice(savings)} con tu cupón.
+        </p>
+      )}
+
       <p className="mt-4 flex items-start gap-1.5 text-left text-[11px] leading-relaxed text-slate-400">
         <ShieldIcon className="mt-0.5 h-4 w-4 shrink-0" />
         <span className="min-w-0">
@@ -387,25 +360,56 @@ function OrderSummary({ items, subtotal, shipping, total, itemCount }) {
 /* ------------------------------------------------------------------ */
 
 export default function Checkout() {
-  const { items, itemCount, subtotal, completePurchase } = useCart()
+  const {
+    items,
+    itemCount,
+    subtotal,
+    coupon,
+    discount,
+    shipping,
+    total,
+    savings,
+    completePurchase,
+  } = useCart()
   const [session] = useState(() => getSession())
+  const [demoPrefill] = useState(() => readDemoCheckoutPrefill())
 
   const [step, setStep] = useState(1)
-  const [receiptType, setReceiptType] = useState('boleta')
-  const [fullName, setFullName] = useState(
-    () => session?.fullName ?? session?.name ?? '',
+  const [receiptType, setReceiptType] = useState(
+    demoPrefill?.receiptType ?? 'boleta',
   )
-  const [documentId, setDocumentId] = useState('')
-  const [businessName, setBusinessName] = useState('')
-  const [ruc, setRuc] = useState('')
-  const [fiscalAddress, setFiscalAddress] = useState('')
-  const [email, setEmail] = useState(() => session?.email ?? '')
-  const [shippingAddress, setShippingAddress] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('card')
-  const [cardNumber, setCardNumber] = useState('')
-  const [cardExpiry, setCardExpiry] = useState('')
-  const [cardCvv, setCardCvv] = useState('')
-  const [cardHolder, setCardHolder] = useState('')
+  const [fullName, setFullName] = useState(
+    () => demoPrefill?.fullName ?? session?.fullName ?? session?.name ?? '',
+  )
+  const [documentId, setDocumentId] = useState(
+    demoPrefill?.documentId ?? '',
+  )
+  const [businessName, setBusinessName] = useState(
+    demoPrefill?.businessName ?? '',
+  )
+  const [ruc, setRuc] = useState(demoPrefill?.ruc ?? '')
+  const [fiscalAddress, setFiscalAddress] = useState(
+    demoPrefill?.fiscalAddress ?? '',
+  )
+  const [email, setEmail] = useState(
+    () => demoPrefill?.email ?? session?.email ?? '',
+  )
+  const [shippingAddress, setShippingAddress] = useState(
+    demoPrefill?.shippingAddress ?? '',
+  )
+  const [paymentMethod, setPaymentMethod] = useState(
+    demoPrefill?.paymentMethod ?? 'card',
+  )
+  const [cardNumber, setCardNumber] = useState(
+    demoPrefill?.cardNumber ?? '',
+  )
+  const [cardExpiry, setCardExpiry] = useState(
+    demoPrefill?.cardExpiry ?? '',
+  )
+  const [cardCvv, setCardCvv] = useState(demoPrefill?.cardCvv ?? '')
+  const [cardHolder, setCardHolder] = useState(
+    demoPrefill?.cardHolder ?? '',
+  )
   const [feedback, setFeedback] = useState(null)
   const [checkingOut, setCheckingOut] = useState(false)
   const [receipt, setReceipt] = useState(null)
@@ -413,8 +417,6 @@ export default function Checkout() {
   const [stockInfo, setStockInfo] = useState({})
 
   const isFactura = receiptType === 'factura'
-  const shipping = calculateShipping(subtotal, itemCount)
-  const total = subtotal + shipping
 
   const snapshot = useMemo(
     () =>
@@ -448,6 +450,45 @@ export default function Checkout() {
       cancelled = true
     }
   }, [snapshot])
+
+  // El Panel del Jurado puede prellenar el checkout aunque ya esté abierto.
+  useEffect(() => {
+    function handleDemoPrefill(event) {
+      const data = event.detail ?? readDemoCheckoutPrefill()
+      if (!data) return
+
+      clearDemoCheckoutPrefill()
+      setReceiptType(data.receiptType ?? 'boleta')
+      setFullName(data.fullName ?? '')
+      setDocumentId(data.documentId ?? '')
+      setBusinessName(data.businessName ?? '')
+      setRuc(data.ruc ?? '')
+      setFiscalAddress(data.fiscalAddress ?? '')
+      setEmail(data.email ?? '')
+      setShippingAddress(data.shippingAddress ?? '')
+      setPaymentMethod(data.paymentMethod ?? 'card')
+      setCardNumber(data.cardNumber ?? '')
+      setCardExpiry(data.cardExpiry ?? '')
+      setCardCvv(data.cardCvv ?? '')
+      setCardHolder(data.cardHolder ?? '')
+      setStep(1)
+      setFeedback(null)
+      setReceipt(null)
+      setPurchasedItems([])
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    window.addEventListener(DEMO_PREFILL_EVENT, handleDemoPrefill)
+
+    return () => {
+      window.removeEventListener(DEMO_PREFILL_EVENT, handleDemoPrefill)
+    }
+  }, [])
+
+  // Los datos leídos al montar son de un solo uso.
+  useEffect(() => {
+    if (demoPrefill) clearDemoCheckoutPrefill()
+  }, [demoPrefill])
 
   const stockProblems = Object.values(stockInfo).filter(
     (info) => info.insufficient,
@@ -607,6 +648,8 @@ export default function Checkout() {
           taxId,
         },
         shipping,
+        discount,
+        couponCode: coupon?.code ?? '',
         shippingAddress: shippingAddress.trim(),
         billingAddress: billingAddress.trim(),
         paymentMethod: buildPaymentLabel(),
@@ -648,9 +691,9 @@ export default function Checkout() {
             <section className="no-print overflow-hidden rounded-[32px] border-[3px] border-amber-300 bg-gradient-to-br from-[#7f1d1d] via-[#b91c1c] to-[#14532d] px-6 py-8 text-center text-white shadow-[0_28px_60px_-30px_rgba(127,29,29,0.8)]">
               <span
                 aria-hidden="true"
-                className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-amber-300 text-3xl shadow-lg"
+                className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-amber-300 text-red-800 shadow-lg"
               >
-                🎄
+                <ChristmasTree className="h-8 w-8" />
               </span>
               <p className="mt-4 text-[11px] font-black uppercase tracking-[0.2em] text-amber-200">
                 Pedido confirmado
@@ -674,7 +717,7 @@ export default function Checkout() {
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-amber-300 to-amber-500 px-5 py-3 text-sm font-black text-red-950 shadow-[0_5px_0_#b7791f] transition hover:-translate-y-0.5 hover:from-amber-200 hover:to-amber-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200/80"
               >
                 <PrintIcon />
-                Imprimir / Descargar comprobante
+                Imprimir / Guardar PDF
               </button>
               <button
                 type="button"
@@ -697,18 +740,18 @@ export default function Checkout() {
             <article className="print-receipt toy-panel mt-6 rounded-3xl p-5 sm:p-7">
               <header className="flex flex-col gap-4 border-b-2 border-dashed border-amber-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-red-700 to-amber-400 text-2xl shadow-md">
-                    🎁
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-red-700 to-amber-400 text-white shadow-md">
+                    <Gift className="h-6 w-6" />
                   </span>
                   <div>
                     <p className="font-display text-lg font-extrabold text-toy-ink">
-                      Mi Juguetería S.A.S.
+                      Mi Juguetería S.A.C.
                     </p>
                     <p className="text-[11px] font-semibold text-slate-500">
                       Juguetería y artículos de entretenimiento
                     </p>
                     <p className="mt-1 text-[11px] text-slate-500">
-                      NIT 900.123.456-7 · Régimen común
+                      RUC 20601234567 · Régimen General
                     </p>
                   </div>
                 </div>
@@ -829,22 +872,73 @@ export default function Checkout() {
                 </table>
               </div>
 
-              <div className="mt-5 flex justify-end">
-                <dl className="w-full max-w-sm space-y-2 text-sm">
+              <div className="mt-6 grid gap-5 border-t-2 border-dashed border-amber-200 pt-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-start">
+                <div className="mx-auto flex w-full max-w-[190px] flex-col items-center gap-1.5 rounded-2xl border-2 border-amber-100 bg-white p-3 text-center sm:mx-0">
+                  <SimulatedQr
+                    value={`${receipt.number}|${receipt.orderCode}|${receipt.verificationCode}|${receipt.totals.total}`}
+                    className="h-32 w-32"
+                    label={`Código QR simulado del comprobante electrónico ${receipt.number}`}
+                  />
+                  <p className="text-[9px] font-black uppercase tracking-wide text-red-700">
+                    Comprobante electrónico
+                  </p>
+                  <p className="text-[9px] font-semibold leading-snug text-slate-400">
+                    Escanea para verificar (simulado)
+                  </p>
+                  <p className="font-mono text-[9px] font-bold text-slate-500">
+                    {receipt.verificationCode}
+                  </p>
+                </div>
+
+                <dl className="w-full space-y-2 text-sm">
                   <div className="flex items-center justify-between gap-3">
-                    <dt className="text-slate-500">Subtotal</dt>
+                    <dt className="text-slate-500">Subtotal de artículos</dt>
                     <dd className="font-bold tabular-nums text-slate-800">
                       {formatPrice(receipt.totals.subtotal)}
                     </dd>
                   </div>
+
+                  {receipt.totals.discount > 0 && (
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="flex items-center gap-1.5 font-semibold text-emerald-700">
+                        Descuento
+                        {receipt.totals.couponCode && (
+                          <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-emerald-700">
+                            {receipt.totals.couponCode}
+                          </span>
+                        )}
+                      </dt>
+                      <dd className="font-black tabular-nums text-emerald-600">
+                        -{formatPrice(receipt.totals.discount)}
+                      </dd>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between gap-3">
-                    <dt className="text-slate-500">Envío</dt>
+                    <dt className="text-slate-500">Costo de envío</dt>
                     <dd className="font-bold tabular-nums text-emerald-600">
                       {receipt.totals.shipping === 0
                         ? 'Gratis'
                         : formatPrice(receipt.totals.shipping)}
                     </dd>
                   </div>
+
+                  <div className="flex items-center justify-between gap-3 border-t border-amber-100 pt-2">
+                    <dt className="font-semibold text-slate-600">Op. Gravada</dt>
+                    <dd className="font-bold tabular-nums text-slate-800">
+                      {formatPrice(receipt.totals.taxableBase)}
+                    </dd>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="font-semibold text-slate-600">
+                      IGV ({Math.round(receipt.totals.taxRate * 100)}%)
+                    </dt>
+                    <dd className="font-bold tabular-nums text-slate-800">
+                      {formatPrice(receipt.totals.tax)}
+                    </dd>
+                  </div>
+
                   <div className="flex items-end justify-between gap-3 border-t-2 border-amber-100 pt-3">
                     <dt className="font-display text-base font-extrabold text-toy-ink">
                       Total pagado
@@ -853,14 +947,19 @@ export default function Checkout() {
                       {formatPrice(receipt.totals.total)}
                     </dd>
                   </div>
+
+                  <p className="rounded-lg bg-amber-50 px-2.5 py-2 text-[10px] font-semibold leading-relaxed text-amber-800 ring-1 ring-amber-100">
+                    Op. Gravada + IGV = Total pagado. El costo de envío ya está
+                    incluido en la operación gravada. Precios en Soles (PEN).
+                  </p>
                 </dl>
               </div>
 
               <footer className="mt-6 border-t border-dashed border-amber-200 pt-4 text-center text-[10px] leading-relaxed text-slate-400">
                 <p>Código de verificación: {receipt.verificationCode}</p>
                 <p className="mt-1">
-                  Comprobante electrónico generado automáticamente. Documento de
-                  demostración.
+                  Representación impresa del comprobante electrónico. Documento
+                  de demostración sin validez tributaria.
                 </p>
               </footer>
             </article>
@@ -883,9 +982,9 @@ export default function Checkout() {
           </div>
         </main>
 
-        <footer className="no-print border-t border-amber-200 bg-white py-6 text-center text-xs text-slate-400">
-          Mi Juguetería · Juguetes seguros para cada etapa
-        </footer>
+        <div className="no-print">
+          <StoreFooter />
+        </div>
       </div>
     )
   }
@@ -898,8 +997,8 @@ export default function Checkout() {
         <StoreHeader />
         <main className="flex-1">
           <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-            <span className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-white text-4xl shadow-md ring-2 ring-amber-100">
-              🎁
+            <span className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-white text-red-600 shadow-md ring-2 ring-amber-100">
+              <Gift className="h-9 w-9" />
             </span>
             <h1 className="mt-5 font-display text-2xl font-extrabold text-toy-ink sm:text-3xl">
               No hay artículos para pagar
@@ -916,6 +1015,8 @@ export default function Checkout() {
             </Link>
           </div>
         </main>
+
+        <StoreFooter />
       </div>
     )
   }
@@ -956,8 +1057,8 @@ export default function Checkout() {
                   : 'Selecciona cómo prefieres pagar tu pedido navideño.'}
               </p>
             </div>
-            <span className="rounded-full bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-red-700 ring-2 ring-amber-100">
-              🎄 Compra segura
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-red-700 ring-2 ring-amber-100">
+              <ChristmasTree className="h-3.5 w-3.5" /> Compra segura
             </span>
           </div>
 
@@ -1016,13 +1117,13 @@ export default function Checkout() {
                         value: 'boleta',
                         label: 'Boleta',
                         hint: 'Persona natural · DNI',
-                        icon: '🧾',
+                        icon: Receipt,
                       },
                       {
                         value: 'factura',
                         label: 'Factura',
                         hint: 'Empresa · RUC 11 dígitos',
-                        icon: '🏢',
+                        icon: Building,
                       },
                     ].map((option) => {
                       const active = receiptType === option.value
@@ -1042,8 +1143,8 @@ export default function Checkout() {
                               : 'border-amber-100 bg-white hover:border-amber-300 hover:bg-amber-50/60'
                           }`}
                         >
-                          <span className="text-2xl" aria-hidden="true">
-                            {option.icon}
+                          <span className="text-red-600" aria-hidden="true">
+                            <option.icon className="h-6 w-6" />
                           </span>
                           <span className="min-w-0">
                             <span
@@ -1341,7 +1442,11 @@ export default function Checkout() {
 
                   {paymentMethod === 'wallet' && (
                     <div className="mt-4 flex flex-col items-center gap-3 rounded-2xl border-2 border-amber-100 bg-amber-50/50 p-5 text-center">
-                      <SimulatedQr />
+                      <SimulatedQr
+                        value="MIJUGUETERIA-NAV-2026"
+                        className="h-40 w-40"
+                        label="Código QR simulado para pagar con Yape o Plin"
+                      />
                       <p className="text-sm font-extrabold text-toy-ink">
                         Escanea el QR con Yape o Plin
                       </p>
@@ -1402,12 +1507,16 @@ export default function Checkout() {
               )}
             </div>
 
-            <aside className="lg:sticky lg:top-24">
+            <aside className="space-y-4 lg:sticky lg:top-24">
+              <CouponBox />
               <OrderSummary
                 items={items}
                 subtotal={subtotal}
+                discount={discount}
+                coupon={coupon}
                 shipping={shipping}
                 total={total}
+                savings={savings}
                 itemCount={itemCount}
               />
             </aside>
@@ -1415,9 +1524,7 @@ export default function Checkout() {
         </div>
       </main>
 
-      <footer className="border-t border-amber-200 bg-white py-6 text-center text-xs text-slate-400">
-        Mi Juguetería · Juguetes seguros para cada etapa
-      </footer>
+      <StoreFooter />
     </div>
   )
 }

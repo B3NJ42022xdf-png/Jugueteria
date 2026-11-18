@@ -10,7 +10,7 @@ import {
   touchSession,
 } from '../services/authService.js'
 
-const PROTECTED_PREFIXES = ['/admin', '/perfil', '/calificar']
+const PROTECTED_PREFIXES = ['/admin', '/perfil', '/mis-pedidos', '/calificar']
 const ACTIVITY_EVENTS = [
   'pointerdown',
   'keydown',

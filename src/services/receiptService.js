@@ -24,18 +24,18 @@ const LEDGER_STORAGE_KEY = 'jugueteria.ledger.v1'
 const EMAILS_STORAGE_KEY = 'jugueteria.emails.v1'
 const MOCK_LATENCY_MS = 400
 
-export const IVA_RATE = 0.19
+export const IGV_RATE = 0.18
 
 export const STORE_FISCAL = {
-  name: 'Mi Juguetería S.A.S.',
+  name: 'Mi Juguetería S.A.C.',
   tradeName: 'Mi Juguetería',
-  taxIdLabel: 'NIT',
-  taxId: '900.123.456-7',
-  regime: 'Régimen común',
-  address: 'Calle 123 # 45-67, Bogotá D.C., Colombia',
-  phone: '+57 601 555 0123',
-  email: 'facturacion@mijugueteria.co',
-  resolution: 'Resolución DIAN 18764000001234 del 01/01/2026',
+  taxIdLabel: 'RUC',
+  taxId: '20601234567',
+  regime: 'Régimen General',
+  address: 'Av. Larco 123, Miraflores, Lima, Perú',
+  phone: '+51 1 555 0123',
+  email: 'facturacion@mijugueteria.pe',
+  resolution: 'Resolución SUNAT 018-2026/SUNAT',
 }
 
 /* ------------------------------------------------------------------ */
@@ -64,31 +64,32 @@ function wait(ms) {
 /* Cálculos y datos del comprobante                                    */
 /* ------------------------------------------------------------------ */
 
-const moneyFormatter = new Intl.NumberFormat('es-CO', {
+const moneyFormatter = new Intl.NumberFormat('es-PE', {
   style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
+  currency: 'PEN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 })
 
 function formatMoney(value) {
-  return moneyFormatter.format(Math.round(value))
+  return moneyFormatter.format(Number(value) || 0)
 }
 
 function formatDateTime(isoDate) {
   const date = new Date(isoDate)
 
-  return `${date.toLocaleDateString('es-CO', {
+  return `${date.toLocaleDateString('es-PE', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  })} ${date.toLocaleTimeString('es-CO', {
+  })} ${date.toLocaleTimeString('es-PE', {
     hour: '2-digit',
     minute: '2-digit',
   })}`
 }
 
 function roundMoney(value) {
-  return Math.round(value)
+  return Math.round(value * 100) / 100
 }
 
 function isValidEmail(value) {
@@ -136,7 +137,7 @@ function buildReceiptItems(items) {
     const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1))
     const unitPrice = Number(item.unitPrice ?? product.price ?? 0)
     const subtotal = Number(item.subtotal ?? unitPrice * quantity)
-    const taxableBase = roundMoney(subtotal / (1 + IVA_RATE))
+    const taxableBase = roundMoney(subtotal / (1 + IGV_RATE))
     const tax = subtotal - taxableBase
 
     return {
@@ -232,13 +233,23 @@ function buildReceiptLines(receipt) {
     push(`Envio: ${formatMoney(receipt.totals.shipping)}`, { size: 9.5, gap: 8 })
   }
 
+  if ((receipt.totals.discount ?? 0) > 0) {
+    const couponLabel = receipt.totals.couponCode
+      ? ` (${receipt.totals.couponCode})`
+      : ''
+    push(`Descuento${couponLabel}: -${formatMoney(receipt.totals.discount)}`, {
+      size: 9.5,
+      gap: 3,
+    })
+  }
+
   push(`Subtotal: ${formatMoney(receipt.totals.subtotal)}`, { size: 9.5, gap: 3 })
   push(`Base gravable: ${formatMoney(receipt.totals.taxableBase)}`, {
     size: 9.5,
     gap: 3,
   })
   push(
-    `IVA (${Math.round(receipt.totals.taxRate * 100)}%): ${formatMoney(receipt.totals.tax)}`,
+    `IGV (${Math.round(receipt.totals.taxRate * 100)}%): ${formatMoney(receipt.totals.tax)}`,
     { size: 9.5, gap: 3 },
   )
   push(`TOTAL PAGADO: ${formatMoney(receipt.totals.total)}`, {
@@ -391,13 +402,13 @@ export function generateReceiptXml(receipt) {
     '      </cac:PartyName>',
     '      <cac:PostalAddress>',
     `        <cbc:StreetName>${xmlEscape(receipt.store.address)}</cbc:StreetName>`,
-    '        <cbc:CountrySubentity>Colombia</cbc:CountrySubentity>',
+    '        <cbc:CountrySubentity>Perú</cbc:CountrySubentity>',
     '      </cac:PostalAddress>',
     '      <cac:PartyTaxScheme>',
     `        <cbc:CompanyID>${xmlEscape(receipt.store.taxId)}</cbc:CompanyID>`,
     '        <cac:TaxScheme>',
-    '          <cbc:ID>IVA</cbc:ID>',
-    '          <cbc:Name>IVA</cbc:Name>',
+    '          <cbc:ID>IGV</cbc:ID>',
+    '          <cbc:Name>IGV</cbc:Name>',
     '        </cac:TaxScheme>',
     '      </cac:PartyTaxScheme>',
     '      <cac:Contact>',
@@ -426,8 +437,8 @@ export function generateReceiptXml(receipt) {
     '      <cac:TaxCategory>',
     `        <cbc:Percent>${taxPercent}</cbc:Percent>`,
     '        <cac:TaxScheme>',
-    '          <cbc:ID>IVA</cbc:ID>',
-    '          <cbc:Name>IVA</cbc:Name>',
+    '          <cbc:ID>IGV</cbc:ID>',
+    '          <cbc:Name>IGV</cbc:Name>',
     '        </cac:TaxScheme>',
     '      </cac:TaxCategory>',
     '    </cac:TaxSubtotal>',
@@ -435,6 +446,11 @@ export function generateReceiptXml(receipt) {
     '  <cac:LegalMonetaryTotal>',
     `    <cbc:LineExtensionAmount currencyID="${xmlEscape(receipt.currency)}">${xmlMoney(receipt.totals.subtotal)}</cbc:LineExtensionAmount>`,
     `    <cbc:TaxExclusiveAmount currencyID="${xmlEscape(receipt.currency)}">${xmlMoney(receipt.totals.taxableBase)}</cbc:TaxExclusiveAmount>`,
+    ...((receipt.totals.discount ?? 0) > 0
+      ? [
+          `    <cbc:AllowanceTotalAmount currencyID="${xmlEscape(receipt.currency)}">${xmlMoney(receipt.totals.discount)}</cbc:AllowanceTotalAmount>`,
+        ]
+      : []),
     `    <cbc:TaxInclusiveAmount currencyID="${xmlEscape(receipt.currency)}">${xmlMoney(receipt.totals.total)}</cbc:TaxInclusiveAmount>`,
     `    <cbc:PayableAmount currencyID="${xmlEscape(receipt.currency)}">${xmlMoney(receipt.totals.total)}</cbc:PayableAmount>`,
     '  </cac:LegalMonetaryTotal>',
@@ -460,8 +476,8 @@ export function generateReceiptXml(receipt) {
       '        <cac:TaxCategory>',
       `          <cbc:Percent>${taxPercent}</cbc:Percent>`,
       '          <cac:TaxScheme>',
-      '            <cbc:ID>IVA</cbc:ID>',
-      '            <cbc:Name>IVA</cbc:Name>',
+      '            <cbc:ID>IGV</cbc:ID>',
+      '            <cbc:Name>IGV</cbc:Name>',
       '          </cac:TaxScheme>',
       '        </cac:TaxCategory>',
       '      </cac:TaxSubtotal>',
@@ -600,7 +616,9 @@ export async function issueReceipt({
   type = 'boleta',
   customer = {},
   shipping = 0,
-  currency = 'COP',
+  discount = 0,
+  couponCode = '',
+  currency = 'PEN',
   shippingAddress = '',
   billingAddress = '',
   paymentMethod = '',
@@ -628,7 +646,7 @@ export async function issueReceipt({
   }
 
   if (type === 'factura' && !taxId) {
-    throw new Error('La factura requiere el NIT/RUC del cliente.')
+    throw new Error('La factura requiere el RUC del cliente.')
   }
 
   // Bloqueo explícito: el comprobante jamás debe contener datos de tarjeta.
@@ -642,8 +660,15 @@ export async function issueReceipt({
   const receiptItems = buildReceiptItems(items)
   const subtotal = receiptItems.reduce((total, item) => total + item.subtotal, 0)
   const shippingValue = Math.max(0, roundMoney(Number(shipping) || 0))
-  const total = subtotal + shippingValue
-  const taxableBase = roundMoney(total / (1 + IVA_RATE))
+  const discountValue = Math.min(
+    Math.max(0, roundMoney(Number(discount) || 0)),
+    subtotal,
+  )
+  const total = Math.max(
+    0,
+    roundMoney(subtotal + shippingValue - discountValue),
+  )
+  const taxableBase = roundMoney(total / (1 + IGV_RATE))
 
   const receipt = {
     id: crypto.randomUUID(),
@@ -671,9 +696,11 @@ export async function issueReceipt({
     totals: {
       subtotal,
       shipping: shippingValue,
+      discount: discountValue,
+      couponCode: sanitizePlainText(couponCode, { max: 32 }),
       taxableBase,
       tax: total - taxableBase,
-      taxRate: IVA_RATE,
+      taxRate: IGV_RATE,
       total,
     },
     verificationCode: buildVerificationCode(),

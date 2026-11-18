@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import FloatingToys from '../components/FloatingToys.jsx'
 import ToyConfetti from '../components/ToyConfetti.jsx'
 import { SantaScene } from '../components/ChristmasDecor.jsx'
+import { Check, ChristmasTree, Gift, PartyPopper } from '../components/icons.jsx'
+import { PEXELS } from '../data/products.js'
 import { DEMO_ADMIN, loginUser } from '../services/authService.js'
 
 function SparkleIcon({ className = 'h-4 w-4' }) {
@@ -95,9 +97,11 @@ function Login() {
               className="relative flex items-center gap-3"
               aria-label="Mi Juguetería, ir al catálogo"
             >
-              <span className="relative grid h-12 w-12 place-items-center rounded-2xl bg-white/20 text-2xl ring-2 ring-amber-300/60 backdrop-blur">
-                🎄
-                <span className="absolute -right-1.5 -top-2 text-base">🎅</span>
+              <span className="relative grid h-12 w-12 place-items-center rounded-2xl bg-white/20 text-amber-100 ring-2 ring-amber-300/60 backdrop-blur">
+                <ChristmasTree className="h-7 w-7" />
+                <span className="absolute -right-1.5 -top-2 grid h-5 w-5 place-items-center rounded-full bg-white text-red-600 shadow-sm ring-2 ring-amber-300">
+                  <Gift className="h-3 w-3" />
+                </span>
               </span>
               <span>
                 <span className="block font-festive text-2xl font-bold leading-none tracking-wide">
@@ -132,8 +136,8 @@ function Login() {
                 {['Compra segura', 'Regalos guardados', 'Pedidos siempre a la vista'].map(
                   (item) => (
                     <li key={item} className="flex items-center gap-2.5">
-                      <span className="grid h-6 w-6 place-items-center rounded-full bg-white/25 text-xs ring-1 ring-white/30">
-                        ✓
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-white/25 ring-1 ring-white/30">
+                        <Check className="h-3.5 w-3.5" />
                       </span>
                       {item}
                     </li>
@@ -150,9 +154,11 @@ function Login() {
               className="mb-6 flex items-center gap-2.5 lg:hidden"
               aria-label="Mi Juguetería, ir al catálogo"
             >
-              <span className="relative grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-red-700 via-red-600 to-red-500 text-2xl shadow-md shadow-red-900/30 ring-2 ring-amber-200">
-                🎄
-                <span className="absolute -right-1.5 -top-2 text-sm">🎅</span>
+              <span className="relative grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-red-700 via-red-600 to-red-500 text-amber-100 shadow-md shadow-red-900/30 ring-2 ring-amber-200">
+                <ChristmasTree className="h-6 w-6" />
+                <span className="absolute -right-1.5 -top-2 grid h-5 w-5 place-items-center rounded-full bg-white text-red-600 shadow-sm ring-2 ring-amber-300">
+                  <Gift className="h-3 w-3" />
+                </span>
               </span>
               <span>
                 <span className="block font-festive text-xl font-bold leading-none text-red-800">
@@ -176,7 +182,7 @@ function Login() {
                 role="status"
                 className="mt-5 animate-bounce-in rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-700"
               >
-                🎉 ¡Tu registro fue exitoso! Ya puedes iniciar sesión con{' '}
+                <PartyPopper className="mr-1 inline h-4 w-4" /> ¡Tu registro fue exitoso! Ya puedes iniciar sesión con{' '}
                 <span className="break-all">{location.state?.email}</span>.
               </div>
             )}
@@ -273,7 +279,10 @@ function Login() {
                     Entrando…
                   </>
                 ) : (
-                  '🎄 Entrar a la Navidad'
+                  <>
+                    <ChristmasTree className="h-5 w-5" />
+                    Entrar a la Navidad
+                  </>
                 )}
               </button>
             </form>
@@ -318,9 +327,20 @@ function Login() {
             >
               <ToyConfetti />
               <div className="animate-bounce-in px-6 text-center">
-                <div className="text-6xl" aria-hidden="true">
-                  🎅
-                </div>
+                <span
+                  className="mx-auto block h-24 w-24 overflow-hidden rounded-full bg-white shadow-lg ring-4 ring-white"
+                  aria-hidden="true"
+                >
+                  <img
+                    src={PEXELS('1556679')}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width="192"
+                    height="192"
+                    className="h-full w-full object-cover"
+                  />
+                </span>
                 <p className="mt-3 font-festive text-3xl font-bold text-red-800">
                   ¡Ho, ho, ho! Bienvenido
                 </p>
